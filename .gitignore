@@ -11,3 +11,10 @@
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
+
+# rstudio
+reversibleMCMC.Rproj
+
+
+#mac
+.DS_store

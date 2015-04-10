@@ -1,0 +1,37 @@
+---
+title: "Reversible Jump MCMC"
+author:
+- name: Maggie Johnson
+  affiliation: Iowa State University
+  email: majohnso@iastate.edu
+- name: Andee Kaplan
+  affiliation: Iowa State University
+  email: ajkaplan@iastate.edu
+- name: Ian Mouzon
+  affiliation: Iowa State University
+  email: imouzon@iastate.edu
+- name: Sam Tyner
+  affiliation: Iowa State University
+  email: sctyner@iastate.edu
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: yes
+    template: tex/nips_template.tex
+abstract: |
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sed augue sem. Mauris eget sem sed dui ornare mattis. Donec mauris lectus, auctor vitae rutrum quis, tempor a augue. Aliquam lobortis justo est, et pulvinar ipsum vulputate sed. Nulla feugiat nibh nec placerat aliquet. Nulla fermentum magna dolor, eu tristique nisl pulvinar nec. Nam non sapien at nibh maximus maximus. Praesent erat sapien, lacinia et turpis quis, aliquet consequat urna.
+---
+
+# Introduction
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur consequat, massa sed interdum imperdiet, massa urna porta ipsum, at blandit nunc lectus sit amet odio. Sed ac ultricies lacus. Mauris pellentesque commodo lorem a sagittis. Nam neque turpis, vulputate quis mattis sit amet, interdum sit amet tortor. Morbi imperdiet dapibus velit at pharetra. Maecenas tincidunt libero rhoncus sagittis ornare. Praesent sit amet massa ut magna faucibus dictum non sagittis odio. Duis a commodo ex. Vivamus quis augue nunc. Phasellus feugiat risus non sapien viverra, sit amet imperdiet lectus efficitur. In mollis iaculis erat, vitae malesuada neque faucibus ut. Donec aliquet luctus dolor non sodales.
+
+Sed ac vulputate mi. Nunc tempor purus sit amet volutpat gravida. Aliquam consequat enim eu pretium rhoncus. Maecenas elementum tellus eget nisi ultrices commodo. Duis dictum luctus viverra. Aliquam viverra, elit sit amet tempus fringilla, lectus felis dapibus tortor, et vulputate felis erat et sapien. Nunc nisi lacus, tincidunt eu justo non, egestas fermentum ligula. Nulla a lectus sed nisl venenatis scelerisque ac vel ex. Fusce vel auctor neque, quis tempor metus. Aenean semper ante id turpis dignissim, vel sagittis nisl dignissim. Nullam sit amet massa sed lacus gravida ullamcorper sed eget mi. Sed facilisis eleifend pretium. In hac habitasse platea dictumst. Sed et aliquam magna, id gravida nulla.
+
+# Findings
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur consequat, massa sed interdum imperdiet, massa urna porta ipsum, at blandit nunc lectus sit amet odio. Sed ac ultricies lacus. Mauris pellentesque commodo lorem a sagittis. Nam neque turpis, vulputate quis mattis sit amet, interdum sit amet tortor. Morbi imperdiet dapibus velit at pharetra. Maecenas tincidunt libero rhoncus sagittis ornare. Praesent sit amet massa ut magna faucibus dictum non sagittis odio. Duis a commodo ex. Vivamus quis augue nunc. Phasellus feugiat risus non sapien viverra, sit amet imperdiet lectus efficitur. In mollis iaculis erat, vitae malesuada neque faucibus ut. Donec aliquet luctus dolor non sodales.
+
+Sed ac vulputate mi. Nunc tempor purus sit amet volutpat gravida. Aliquam consequat enim eu pretium rhoncus. Maecenas elementum tellus eget nisi ultrices commodo. Duis dictum luctus viverra. Aliquam viverra, elit sit amet tempus fringilla, lectus felis dapibus tortor, et vulputate felis erat et sapien. Nunc nisi lacus, tincidunt eu justo non, egestas fermentum ligula. Nulla a lectus sed nisl venenatis scelerisque ac vel ex. Fusce vel auctor neque, quis tempor metus. Aenean semper ante id turpis dignissim, vel sagittis nisl dignissim. Nullam sit amet massa sed lacus gravida ullamcorper sed eget mi. Sed facilisis eleifend pretium. In hac habitasse platea dictumst. Sed et aliquam magna, id gravida nulla.
+
+# References
+
+
