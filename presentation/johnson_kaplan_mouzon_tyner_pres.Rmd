@@ -19,16 +19,21 @@ nocite: |
 ## Reversible Chain
 
   - Definition
-  - Animation?
+  - Animation
   - Detailed balance condition
 
 ## Algorithm
+This may be moved to paper only, depending on time/detail required
 
 # Example
 
+## Poisson/Negative Binomial Model
+
 # Challenges for implementation
 
-## Automatic RJMCMC
+## Choosing priors
+
+## Tuning
 
 ## Diagnostics
 
