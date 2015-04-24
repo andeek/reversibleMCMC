@@ -93,7 +93,7 @@ gibbs_sampler <- function(y, lambda0, kappa0, k0, p=0.5, mu, sigma, alphal, beta
         kappa_new <- kappa
         lambda_new <- sim_lambda(lambda, y, alphal, betal, k, al, bl)
       }else{
-        kappa_new <- sim_kappa(lambda, y, alphak, betak, kappa, ak, bk)
+        kappa_new <- sim_kappa(lambda, y, alphak, betak, kappa, ak, bk) # don't need this 
         lambda_new <- sim_lambda(lambda, y, kappa_new, alphal, betal, k, al, bl)
       }
     }
