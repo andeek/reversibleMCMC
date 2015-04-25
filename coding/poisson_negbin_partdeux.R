@@ -17,7 +17,8 @@ pk2 <- function(y, theta, alphal, betal, alphak, betak){
 
 ### Draw Lambda ###
 qlam_k2<-function(lambda, y, kappa, alpha, beta){
-  log(lambda)*(sum(y) + alpha - 1) - (sum(y)+1/kappa)*log(1+kappa*lambda) - beta*lambda
+  n <- length(y)
+  log(lambda)*(sum(y) + alpha - 1) - (sum(y)+n/kappa)*log(1+kappa*lambda) - beta*lambda
 }
 
 mh_lam_k2 <- function(lambda, y, kappa, alpha, beta, sl){
@@ -46,7 +47,7 @@ sim_lambda <- function(lambda, y, alpha, beta, kappa=NULL, k, sl){
 ### Draw Kappa ###
 qkap_k2 <- function(lambda, y, kappa, alpha, beta){
   n <- length(y)
-  -n*lgamma(1/kappa) + sum(lgamma(1/kappa + y)) + (sum(y) + alpha - 1)*log(kappa) - beta*kappa - (sum(y) + 1/kappa)*log(1+kappa*lambda)
+  -n*lgamma(1/kappa) + sum(lgamma(1/kappa + y)) + (sum(y) + alpha - 1)*log(kappa) - beta*kappa - (sum(y) + n/kappa)*log(1+kappa*lambda)
 }
 
 mh_kap_k2 <- function(lambda, y, kappa, alpha, beta, sk){
@@ -180,10 +181,10 @@ alphak <- 1
 betak <- 10
 mu = 0.015
 sigma <- 1.5
-sl <- 10
-sk <- 1
+sl <- 0.5
+sk <- 0.001
 
-test <- rjmcmc_sampler(soccer$TotalGoals, lambda0=2, kappa0=1, k0=1, mu=mu, sigma=sigma, 
+test <- rjmcmc_sampler(soccer$TotalGoals, lambda0=2, kappa0=10, k0=1, mu=mu, sigma=sigma, 
                        alphal=alphal, betal=betal, alphak=alphak, betak=betak, sl=sl, sk=sk, 
                        tune=TRUE, mc.iter=10000)
 
