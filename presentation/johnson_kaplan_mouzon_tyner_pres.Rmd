@@ -103,9 +103,27 @@ The *order* of the method determines the type of constraint imposed:
   - This means that changing between models with different numbers of parameters is equivalent to changing the auxiliary variables in or out
   - Between state changes become more likely meaning the sampler covers the set of possible proposals more quickly
 
-## Tuning
+# Other Ways to Improve Proposals
 
-## Diagnostics
+  - Adaptive sampling: using past observations (even rejected ones) to make mid-run adjustments to the proposal
+
+     - Type 1: *diminishing* - continuous adaptation, but at a decreasing rate
+     - Type 2: *through regeneration* - if regions of the state space exists where incoming chains are likely independent of outgoing chains, adapt as chains enter and leave them
+
+  - Delayed rejection: if proposal $x'$ is rejected, try a backup proposal $x''$
+
+## Finding Appropriate Diagnostics
+
+  - The main issue in improving efficiency is in promoting transitions between models - transitions between state space dimensions.
+  - However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.
+  - Transitioning between models is not always the favored choice 
+     - Chains may "stabilize" quickly inside a model 
+     - Meaning the chain provides good diagnostics 
+     - **Until** the chain moves to sample from a different model
+     - At which point the diagnostics 
+  - Recent work is focused on accounting for the differences in "within" run and "between" run variability
+     - Meaning finding ways account for how much disruption in chain behavior is natural when switching dimensions
+     - Similar to "within" model and "between" model variability to account for expected departure from modeled behavior
 
 # Beyond...
 
