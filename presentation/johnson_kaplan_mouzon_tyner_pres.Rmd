@@ -10,6 +10,13 @@ nocite: |
 
 # Problem Statement | Trans-dimensional problems
 
+## Primary Goal
+
+To solve problems where
+*"...the number of things you don’t know is one of the things you don’t know!"*
+
+![idk](images/idk_idk.jpg)
+
 # What is RJMCMC?
 
 ## RJMCMC makes you wanna...
