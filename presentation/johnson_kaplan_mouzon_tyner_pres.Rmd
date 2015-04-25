@@ -72,13 +72,36 @@ but whether it will work effeciently.
   - Ineffecient chains are slow to explore the support of the target distribution
   - Taking more *time* to converge to the target distribution
 
-Improving efficiency requires the posterior of the proposed state $(k', \theta'_{k'})$ 
-and the posterior of the existitng state $(k, \theta_k)$ to be similar.
+The tuning for a specific problem can be arduous, 
+which has lead to work on finding useful general techniques for 
+selecting parts of the mechanism.
 
-The tuning for a specific problem can be arduous, leading to the following general
-approaches
+## General Approaches to Improve Efficiency
 
-## Choosing priors
+Improving efficiency requires the proposed state $(k', \theta'_{k'})$ 
+and the existitng state $(k, \theta_k)$ have similar state spaces.
+
+There are two main classes of methods for ensuring this:
+
+  - *Order methods*: parameterizing proposals (our $g(u)$) for a given $h(\theta, u) = (\theta', u')$.
+  - *Saturated state*: augment the state space $\mathcal{X}$ with auxiliary variables
+
+## Order methods
+
+  - For a given initial state $\theta_k$ in model $k$ we can find an equivalent state $c_{k,k'}(\theta_k)$ in model $k'$.  
+  - We call these equiavlent states are called "centering points"
+  - If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, then moving from one model ($k$) to another ($k'$) will be encouraged and the state space will be more thoroughly explored.
+  
+The *order* of the method determines the type of constraint imposed:
+
+  - $0^{th}$-order: $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$
+  - $k^{th}$-order: $\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$
+
+## Saturated State Space Approach
+
+  - For a given state space $\mathcal{X}$ add additional "auxiliary" variables so that each model has the same number of parameters as the largest model.
+  - This means that changing between models with different numbers of parameters is equivalent to changing the auxiliary variables in or out
+  - Between state changes become more likely meaning the sampler covers the set of possible proposals more quickly
 
 ## Tuning
 
