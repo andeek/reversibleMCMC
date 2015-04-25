@@ -74,9 +74,59 @@ This may be moved to paper only, depending on time/detail required
 
 # Appendix
 
-## Proofs
+## Development of $\alpha$ {#appendix}
 
-## References {#references}
+**Metropolis-Hastings on a general state space**
+
+To construct a Markov chain on a state space $\mathcal{X}$ with invariant distribution $\pi$. We will only consider reversible chains, so the transition kernel $P$ satisfies the detailed balance condition
+
+$$
+\int\limits_{(x, x') \in A \times B} \pi(dx)P(x, dx') = \int\limits_{(x, x') \in A \times B} \pi(dx')P(x', dx)
+$$
+
+for all Borel sets $A,B \subset \mathcal{X}$. We make a transition by frawing a candidate new state $x'$ from the proposal measure $q(x, dx')$ and accepting it with probability $\alpha(x, x')$. We we reject, we stay in the current state so that $P(x, dx')$ has an element at $x$. This constributes $\int_{A\cap B} P(x, \{x\}) \pi(dx)$ to each side of the balance equation; subtracting leaves
+
+$$
+\int\limits_{(x, x') \in A \times B} \pi(dx)q(x, dx')\alpha(x, x') = \int\limits_{(x, x') \in A \times B} \pi(dx')q(x', dx)\alpha(x', x)
+$$
+
+Now $ \pi(dx)q(x, dx')$ is dominated by a symmetric measure $\mu$ on $\mathcal{X} \times \mathcal{X}$ and let its density wrt $\mu$ be denoted $f$. Then the above equality becomes
+
+$$
+\int\limits_{(x, x') \in A \times B} \alpha(x, x')f(x, x')\mu(dx, dx') = \int\limits_{(x, x') \in A \times B} \alpha(x', x)f(x', x)\mu(dx', dx)
+$$
+
+and by the summetry of $\mu$, this is satisfied for all Borel $A,B$ if
+
+$$
+\alpha(x, x') = \min\left\{1, \frac{f(x', x)}{f(x, x')}\right\} =  \min\left\{1, \frac{\pi(dx')q(x', dx)}{\pi(dx)q(x, dx')}\right\}
+$$
+
+## Development of $\alpha$ Cont'd {#appendix}
+
+**Constructive representation in terms of random numbers**
+
+Let $\mathcal{X} \subset \mathbb{R}^d$ and suppose $\pi$ has a density wrt to the $d$-dimensional Lebesgue measure (also denoted $\pi$). At the current state $x$, we generate $r$ random numbers $u$ from a known joint density $g$ and then form the proposed new state as a deterministic function of the current state and the random numbers so that $x' = h(x, u)$. Then the second equality on the previous slide can be written
+
+$$
+\int\limits_{(x, x') \in A \times B} \pi(x) g(u) \alpha(x, x') dx du = \int\limits_{(x, x') \in A \times B} \pi(x') g(u') \alpha(x', x) dx' du'.
+$$
+
+Where the reverse transition from $x'$ to $x$ is made with the aid of random numbers $u' \sim g'$ giving $x = \mathcal{H}(x', u')$ and this transformation from $(x, u)$ to $(x', u')$ is a diffeomorphism. Then the $(d + r)$-dimensional integral equality holds if
+
+$$
+\pi(x)g(u)\alpha(x, x') = \pi(x') g(u') \alpha(x', x) \left|\frac{\partial(x', u')}{\partial(x,u)}\right|.
+$$
+
+Then, a valid choice for $\alpha$ is 
+
+$$
+\alpha(x, x') = \min\left\{1, \frac{\pi(x')g'(u')}{\pi(x)g(u)} \left|\frac{\partial(x', u')}{\partial(x,u)}\right|\right\}
+$$
+
+[@green2003trans]
+
+## References {#appendix}
 
 
 

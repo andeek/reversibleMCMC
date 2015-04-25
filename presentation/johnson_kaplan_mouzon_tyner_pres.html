@@ -75,7 +75,7 @@
 
   </style>
 
-  <link href="data:text/css,%23references%20%7B%0A%20%20%20font%2Dsize%3A%2016px%3B%0A%7D" rel="stylesheet" type="text/css" />
+  <link href="data:text/css,%23appendix%20%7B%0A%20%20%20font%2Dsize%3A%2014px%3B%0A%7D" rel="stylesheet" type="text/css" />
 
 
 </head>
@@ -164,14 +164,66 @@
 
 </article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Appendix</h2></hgroup><article  id="appendix">
 
-</article></slide><slide class=''><hgroup><h2>Proofs</h2></hgroup><article  id="proofs">
+</article></slide><slide class=''><hgroup><h2>Development of \(\alpha\)</h2></hgroup><article  id="appendix">
+
+<p><strong>Metropolis-Hastings on a general state space</strong></p>
+
+<p>To construct a Markov chain on a state space \(\mathcal{X}\) with invariant distribution \(\pi\). We will only consider reversible chains, so the transition kernel \(P\) satisfies the detailed balance condition</p>
+
+<p>\[
+\int\limits_{(x, x&#39;) \in A \times B} \pi(dx)P(x, dx&#39;) = \int\limits_{(x, x&#39;) \in A \times B} \pi(dx&#39;)P(x&#39;, dx)
+\]</p>
+
+<p>for all Borel sets \(A,B \subset \mathcal{X}\). We make a transition by frawing a candidate new state \(x&#39;\) from the proposal measure \(q(x, dx&#39;)\) and accepting it with probability \(\alpha(x, x&#39;)\). We we reject, we stay in the current state so that \(P(x, dx&#39;)\) has an element at \(x\). This constributes \(\int_{A\cap B} P(x, \{x\}) \pi(dx)\) to each side of the balance equation; subtracting leaves</p>
+
+<p>\[
+\int\limits_{(x, x&#39;) \in A \times B} \pi(dx)q(x, dx&#39;)\alpha(x, x&#39;) = \int\limits_{(x, x&#39;) \in A \times B} \pi(dx&#39;)q(x&#39;, dx)\alpha(x&#39;, x)
+\]</p>
+
+<p>Now $ (dx)q(x, dx&#39;)$ is dominated by a symmetric measure \(\mu\) on \(\mathcal{X} \times \mathcal{X}\) and let its density wrt \(\mu\) be denoted \(f\). Then the above equality becomes</p>
+
+<p>\[
+\int\limits_{(x, x&#39;) \in A \times B} \alpha(x, x&#39;)f(x, x&#39;)\mu(dx, dx&#39;) = \int\limits_{(x, x&#39;) \in A \times B} \alpha(x&#39;, x)f(x&#39;, x)\mu(dx&#39;, dx)
+\]</p>
+
+<p>and by the summetry of \(\mu\), this is satisfied for all Borel \(A,B\) if</p>
+
+<p>\[
+\alpha(x, x&#39;) = \min\left\{1, \frac{f(x&#39;, x)}{f(x, x&#39;)}\right\} =  \min\left\{1, \frac{\pi(dx&#39;)q(x&#39;, dx)}{\pi(dx)q(x, dx&#39;)}\right\}
+\]</p>
+
+</article></slide><slide class=''><hgroup><h2>Development of \(\alpha\) Cont&#39;d</h2></hgroup><article  id="appendix">
+
+<p><strong>Constructive representation in terms of random numbers</strong></p>
+
+<p>Let \(\mathcal{X} \subset \mathbb{R}^d\) and suppose \(\pi\) has a density wrt to the \(d\)-dimensional Lebesgue measure (also denoted \(\pi\)). At the current state \(x\), we generate \(r\) random numbers \(u\) from a known joint density \(g\) and then form the proposed new state as a deterministic function of the current state and the random numbers so that \(x&#39; = h(x, u)\). Then the second equality on the previous slide can be written</p>
+
+<p>\[
+\int\limits_{(x, x&#39;) \in A \times B} \pi(x) g(u) \alpha(x, x&#39;) dx du = \int\limits_{(x, x&#39;) \in A \times B} \pi(x&#39;) g(u&#39;) \alpha(x&#39;, x) dx&#39; du&#39;.
+\]</p>
+
+<p>Where the reverse transition from \(x&#39;\) to \(x\) is made with the aid of random numbers \(u&#39; \sim g&#39;\) giving \(x = \mathcal{H}(x&#39;, u&#39;)\) and this transformation from \((x, u)\) to \((x&#39;, u&#39;)\) is a diffeomorphism. Then the \((d + r)\)-dimensional integral equality holds if</p>
+
+<p>\[
+\pi(x)g(u)\alpha(x, x&#39;) = \pi(x&#39;) g(u&#39;) \alpha(x&#39;, x) \left|\frac{\partial(x&#39;, u&#39;)}{\partial(x,u)}\right|.
+\]</p>
+
+<p>Then, a valid choice for \(\alpha\) is</p>
+
+<p>\[
+\alpha(x, x&#39;) = \min\left\{1, \frac{\pi(x&#39;)g&#39;(u&#39;)}{\pi(x)g(u)} \left|\frac{\partial(x&#39;, u&#39;)}{\partial(x,u)}\right|\right\}
+\]</p>
+
+<p><span class="cite">(Green 2003)</span></p>
 
 <div class="references">
-</article></slide><slide class=''><hgroup><h2>References</h2></hgroup><article  id="references" class="unnumbered">
+</article></slide><slide class=''><hgroup><h2>References</h2></hgroup><article  id="appendix" class="unnumbered">
 
 <p>Carlin, Bradley P, and Siddhartha Chib. 1995. “Bayesian Model Choice via Markov Chain Monte Carlo Methods.” <em>Journal of the Royal Statistical Society. Series B (Methodological)</em>. JSTOR, 473–84.</p>
 
 <p>Geman, Stuart, and Donald Geman. 1984. “Stochastic Relaxation, Gibbs Distributions, and the Bayesian Restoration of Images.” <em>Pattern Analysis and Machine Intelligence, IEEE Transactions on</em>, no. 6. IEEE: 721–41.</p>
+
+<p>Green, Peter J. 2003. “Trans-Dimensional Markov Chain Monte Carlo.” <em>Oxford Statistical Science Series</em>. OXFORD UNIV PRESS, 179–98.</p>
 
 <p>Green, Peter J, and David I Hastie. 2009. “Reversible Jump MCMC.” <em>Genetics</em> 155 (3): 1391–1403.</p>
 
