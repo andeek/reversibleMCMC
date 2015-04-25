@@ -159,3 +159,4 @@ qplot(data=testk2, x=kappa, geom="density")
 qplot(x=1:nrow(testk2), testk2$kappa, geom="line")
 qplot(x=1:nrow(testk2), testk2$lambda, geom="line")
 qplot(x=1:nrow(testk1), testk1$lambda, geom="line")
+

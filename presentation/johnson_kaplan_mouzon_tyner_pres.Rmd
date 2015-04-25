@@ -10,11 +10,18 @@ nocite: |
 
 # Problem Statement | Trans-dimensional problems
 
+## Primary Goal
+
+To solve problems where
+*"...the number of things you don’t know is one of the things you don’t know!"*
+
+![idk](images/idk_idk.jpg)
+
 # What is RJMCMC?
 
 ## RJMCMC makes you wanna...
 
-![kris-kross](images/kris_kross.gif)
+![http://giphy.com/gifs/jump-NupHKw9kFaaEE](images/kris_kross.gif)
 
 ## Reversible Chain
 
@@ -41,9 +48,15 @@ This may be moved to paper only, depending on time/detail required
 
 ## Extensions to...
 
-  - Adaptive RJMCMC
+  - Adaptive RJMCMC 
   - Interacting Sequential MCMC
   - Simulated Annealing extended for trans-dimensionsal problems
+
+<div class="notes">
+  - Efficiency gains - adaptive sampling. Idea: proposal mechanisms may be allowed to depend on past realizations of the chain, not just current state without invalidating ergodicity of process. Optimal location and scaling of proposal can be determined during run, eliminating tuning.
+  - ISMC - Several sequential MC samplers run in parallel, separate subspaces. For each sampler at time $t < T$, particles updated using (reversible) MCMC moves. When a oredetermined time $t^* < T$ is reached, the separate samplers are combined into a single sampler moving across all models.
+  - Simulated annealing where an optimal model may need to be determined. I.e., function $f$ quantity to minimize with some penalization terms. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate invariant dsn. Once equilibrium achieved, temperature is decreased and new phase is started from the state the chain ended in.
+</div>
 
 ## Alternatives to... | for trans-dimensional problems
 
