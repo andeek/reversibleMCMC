@@ -41,10 +41,27 @@ This may be moved to paper only, depending on time/detail required
 ## The Challenges Aren't What You Think
 
 Implementing reversible algorithms may seem difficult for several reasons. 
+- Much of the work being reported is from the perspective of MCMC "experts"
 - The language required to present these samplers is necessarily complex
-- The underlying structure of the samplers is important
-- In terms of implementation, most cases 
-- The complicated nature of the relationships 
+
+These issues are not the cause of difficulty though
+- In the practical sense, implementation is *actually* fairly easy 
+- Very few areas require a detailed understanding of the underlying theorhetical framework 
+- There is little justification needed to garuntee a sampler is able to simulate from a target
+
+## Efficiency
+
+The main issue is usually not whether a proposal mechanism will work, 
+but whether it will work effeciently.
+
+- Ineffecient chains are slow to explore the support of the target distribution
+- Taking more *time* to converge to the target distribution
+
+Improving efficiency requires the posterior of the proposed state $(k', \theta'_{k'})$ 
+and the posterior of the existitng state $(k, \theta_k)$ to be similar.
+
+The tuning for a specific problem can be arduous, leading to the following general
+approaches
 
 ## Choosing priors
 
