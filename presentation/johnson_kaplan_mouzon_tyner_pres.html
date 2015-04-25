@@ -139,6 +139,25 @@
 
 </article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Challenges for implementation</h2></hgroup><article  id="challenges-for-implementation">
 
+</article></slide><slide class=''><hgroup><h2>The Challenges Aren&#39;t What You Think</h2></hgroup><article  id="the-challenges-arent-what-you-think">
+
+<p>Implementing reversible algorithms may seem difficult for several reasons. - Much of the work being reported is from the perspective of MCMC &quot;experts&quot; - The language required to present these samplers is necessarily complex</p>
+
+<p>These issues are not the cause of difficulty though - In the practical sense, implementation is <em>actually</em> fairly easy - Very few areas require a detailed understanding of the underlying theorhetical framework - There is little justification needed to garuntee a sampler is able to simulate from a target</p>
+
+</article></slide><slide class=''><hgroup><h2>Efficiency</h2></hgroup><article  id="efficiency">
+
+<p>The main issue is usually not whether a proposal mechanism will work, but whether it will work effeciently.</p>
+
+<ul>
+<li>Ineffecient chains are slow to explore the support of the target distribution</li>
+<li>Taking more <em>time</em> to converge to the target distribution</li>
+</ul>
+
+<p>Improving efficiency requires the posterior of the proposed state \((k&#39;, \theta&#39;_{k&#39;})\) and the posterior of the existitng state \((k, \theta_k)\) to be similar.</p>
+
+<p>The tuning for a specific problem can be arduous, leading to the following general approaches</p>
+
 </article></slide><slide class=''><hgroup><h2>Choosing priors</h2></hgroup><article  id="choosing-priors">
 
 </article></slide><slide class=''><hgroup><h2>Tuning</h2></hgroup><article  id="tuning">
