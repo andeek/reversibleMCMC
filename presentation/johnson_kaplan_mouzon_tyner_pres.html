@@ -116,9 +116,22 @@
 <li>Detailed balance condition</li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2>Algorithm</h2></hgroup><article  id="algorithm">
+</article></slide><slide class=''><hgroup><h2>Algorithm (model selection)</h2></hgroup><article  id="algorithm-model-selection">
 
-<p>This may be moved to paper only, depending on time/detail required</p>
+<p>If the current state of the chain is \((k, \boldsymbol \theta_k)\), then:</p>
+
+<ol>
+<li>Propose a new model \(\mathcal{M}_{k^*}\) with probability \(j(k^*| k)\).</li>
+<li>Generate \(\boldsymbol u\) from a specified proposal density \(g(\boldsymbol u)\)</li>
+<li>Set \((\boldsymbol \theta_{k^*}^*, \boldsymbol u^*) = h&#39;(\boldsymbol \theta_k, \boldsymbol u)\) where \(h&#39;\) is a bijection between \((\boldsymbol \theta_k, \boldsymbol u)\) and \((\boldsymbol \theta^*_{^*}, \boldsymbol u^*)\) where the following must hold: \(dim(\boldsymbol \theta_k) + dim(\boldsymbol u) = dim(\boldsymbol \theta^*_{k^*}) + dim(\boldsymbol u^*)\).</li>
+<li><p>Accept the proposed move to \((k^*, \boldsymbol \theta_{k^*}^*)\) with probability</p>
+
+<p>\[
+  \alpha = \min\left\{1, \frac{\pi( \theta_{k^*}^*) j(k^*| k) g&#39;(\boldsymbol u^*)}{\pi(\boldsymbol \theta_k) j(k|k^*) g(\boldsymbol u)} \left|\frac{\partial h&#39;( \theta_{k^*}^*, \boldsymbol u^*)}{\partial (\boldsymbol \theta_k, \boldsymbol u)}\right|\right\}
+  \]</p>
+
+<p>Where \(u^* \sim g&#39;\) <span class="cite">(Chen, Ibrahim, and Shao 2000, 303)</span></p></li>
+</ol>
 
 </article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Example</h2></hgroup><article  id="example">
 
@@ -220,6 +233,8 @@
 </article></slide><slide class=''><hgroup><h2>References</h2></hgroup><article  id="appendix" class="unnumbered">
 
 <p>Carlin, Bradley P, and Siddhartha Chib. 1995. “Bayesian Model Choice via Markov Chain Monte Carlo Methods.” <em>Journal of the Royal Statistical Society. Series B (Methodological)</em>. JSTOR, 473–84.</p>
+
+<p>Chen, Ming-Hui, Joseph G Ibrahim, and Qi-Man Shao. 2000. <em>Monte Carlo Methods in Bayesian Computation</em>. Springer.</p>
 
 <p>Geman, Stuart, and Donald Geman. 1984. “Stochastic Relaxation, Gibbs Distributions, and the Bayesian Restoration of Images.” <em>Pattern Analysis and Machine Intelligence, IEEE Transactions on</em>, no. 6. IEEE: 721–41.</p>
 

@@ -31,8 +31,19 @@ To solve problems where
   - Animation
   - Detailed balance condition
 
-## Algorithm
-This may be moved to paper only, depending on time/detail required
+## Algorithm (model selection)
+If the current state of the chain is $(k, \boldsymbol \theta_k)$, then:
+
+  1. Propose a new model $\mathcal{M}_{k^*}$ with probability $j(k^*| k)$.
+  2. Generate $\boldsymbol u$ from a specified proposal density $g(\boldsymbol u)$
+  3. Set $(\boldsymbol \theta_{k^*}^*, \boldsymbol u^*) = h'(\boldsymbol \theta_k, \boldsymbol u)$ where $h'$ is a bijection between $(\boldsymbol \theta_k, \boldsymbol u)$ and $(\boldsymbol \theta^*_{^*}, \boldsymbol u^*)$ where the following must hold: $dim(\boldsymbol \theta_k) + dim(\boldsymbol u) = dim(\boldsymbol \theta^*_{k^*}) + dim(\boldsymbol u^*)$.
+  4. Accept the proposed move to $(k^*, \boldsymbol \theta_{k^*}^*)$ with probability
+  
+      $$
+      \alpha = \min\left\{1, \frac{\pi( \theta_{k^*}^*) j(k^*| k) g'(\boldsymbol u^*)}{\pi(\boldsymbol \theta_k) j(k|k^*) g(\boldsymbol u)} \left|\frac{\partial h'( \theta_{k^*}^*, \boldsymbol u^*)}{\partial (\boldsymbol \theta_k, \boldsymbol u)}\right|\right\}
+      $$
+      
+      Where $u^* \sim g'$ [@chen2000monte, pp. 303]
 
 # Example
 
