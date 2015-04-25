@@ -1,6 +1,6 @@
 ############################# Poisson Negative-Binomial Example ################################
 library(ggplot2)
-
+theme_set(theme_bw(base_family="serif"))
 ### Data ###
 soccer <- read.csv("data/soccer.csv")
 
@@ -8,13 +8,11 @@ soccer <- read.csv("data/soccer.csv")
 ### Posterior Distribution Functions ###
 pk1 <- function(y, theta, alphal, betal){
   sum(log(dpois(y, theta))) + log(dgamma(theta, shape=alphal, rate=betal))
-  #prod(dpois(y, theta))*dgamma(theta, shape=alphal, rate=betal)
 }
 
 pk2 <- function(y, theta, alphal, betal, alphak, betak){
   r <- 1/theta[2]
   sum(log(dnbinom(y, size=r, mu=theta[1]))) + log(dgamma(theta[1], shape=alphal, rate=betal)) + log(dgamma(theta[2], shape=alphak, rate=betak))
-  #prod(dnbinom(y, size=r, mu=theta[1]))*dgamma(theta[1], shape=alphal, rate=betal)*dgamma(theta[2], shape=alphak, rate=betak)
 }
 
 ### Draw Lambda ###
@@ -46,7 +44,6 @@ sim_lambda <- function(lambda, y, alpha, beta, kappa=NULL, k, a, b){
 qkap_k2 <- function(lambda, y, kappa, alpha, beta){
   n <- length(y)
   -n*lgamma(1/kappa) + sum(lgamma(1/kappa + y)) + (sum(y) + alpha - 1)*log(kappa) - beta*kappa - (sum(y) + n/kappa)*log(1+kappa*lambda)
-  #gamma(1/kappa)^(-n)*prod(gamma(1/n + y))*kappa^(sum(y) + alpha - 1)*exp(-beta*kappa)*(1+kappa*lambda)^(-(sum(y) + 1/kappa))
 }
 
 mh_kap_k2 <- function(lambda, y, kappa, alpha, beta, a, b){
@@ -147,14 +144,17 @@ test <- rjmcmc_sampler(soccer$TotalGoals, lambda0=2, kappa0=1, k0=1, mu=mu, sigm
 proc.time() - ptm
 
 ## Burn-in = 5000
-test.s <- test[1:5000,]
+test.s <- test[-c(1:5000),]
 
 testk1 <- subset(test.s, k==1)
 testk2 <- subset(test.s, k==2)
 
-qplot(data=testk1, x=lambda, geom="density")
-qplot(data=testk2, x=lambda, geom="density")
-qplot(data=testk2, x=kappa, geom="density")
+qplot(data=testk1, x=lambda, geom="density", xlim=c(2.35,2.7), xlab=expression(theta[1]))
+qplot(data=testk2, x=lambda, geom="density", xlim=c(2.35,2.75), xlab=expression(theta["2,1"]))
+qplot(data=testk2, x=kappa, geom="density", xlim=c(-0.005,0.08), xlab=expression(theta["2,2"]))
+
+p1 <- nrow(testk1)/nrow(test.s)
+p2 <- nrow(testk2)/nrow(test.s)
 
 qplot(x=1:nrow(testk2), testk2$kappa, geom="line")
 qplot(x=1:nrow(testk2), testk2$lambda, geom="line")
