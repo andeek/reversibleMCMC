@@ -83,17 +83,58 @@ but whether it will work effeciently.
   - Ineffecient chains are slow to explore the support of the target distribution
   - Taking more *time* to converge to the target distribution
 
-Improving efficiency requires the posterior of the proposed state $(k', \theta'_{k'})$ 
-and the posterior of the existitng state $(k, \theta_k)$ to be similar.
+The tuning for a specific problem can be arduous, 
+which has lead to work on finding useful general techniques for 
+selecting parts of the mechanism.
 
-The tuning for a specific problem can be arduous, leading to the following general
-approaches
+## General Approaches to Improve Efficiency
 
-## Choosing priors
+Improving efficiency requires the proposed state $(k', \theta'_{k'})$ 
+and the existitng state $(k, \theta_k)$ have similar state spaces.
 
-## Tuning
+There are two main classes of methods for ensuring this:
 
-## Diagnostics
+  - *Order methods*: parameterizing proposals (our $g(u)$) for a given $h(\theta, u) = (\theta', u')$.
+  - *Saturated state*: augment the state space $\mathcal{X}$ with auxiliary variables
+
+## Order methods
+
+  - For a given initial state $\theta_k$ in model $k$ we can find an equivalent state $c_{k,k'}(\theta_k)$ in model $k'$.  
+  - We call these equiavlent states are called "centering points"
+  - If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, then moving from one model ($k$) to another ($k'$) will be encouraged and the state space will be more thoroughly explored.
+  
+The *order* of the method determines the type of constraint imposed:
+
+  - $0^{th}$-order: $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$
+  - $k^{th}$-order: $\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$
+
+## Saturated State Space Approach
+
+  - For a given state space $\mathcal{X}$ add additional "auxiliary" variables so that each model has the same number of parameters as the largest model.
+  - This means that changing between models with different numbers of parameters is equivalent to changing the auxiliary variables in or out
+  - Between state changes become more likely meaning the sampler covers the set of possible proposals more quickly
+
+# Other Ways to Improve Proposals
+
+  - Adaptive sampling: using past observations (even rejected ones) to make mid-run adjustments to the proposal
+
+     - Type 1: *diminishing* - continuous adaptation, but at a decreasing rate
+     - Type 2: *through regeneration* - if regions of the state space exists where incoming chains are likely independent of outgoing chains, adapt as chains enter and leave them
+
+  - Delayed rejection: if proposal $x'$ is rejected, try a backup proposal $x''$
+
+## Finding Appropriate Diagnostics
+
+  - The main issue in improving efficiency is in promoting transitions between models - transitions between state space dimensions.
+  - However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.
+  - Transitioning between models is not always the favored choice 
+     - Chains may "stabilize" quickly inside a model 
+     - Meaning the chain provides good diagnostics 
+     - **Until** the chain moves to sample from a different model
+     - At which point the diagnostics 
+  - Recent work is focused on accounting for the differences in "within" run and "between" run variability
+     - Meaning finding ways account for how much disruption in chain behavior is natural when switching dimensions
+     - Similar to "within" model and "between" model variability to account for expected departure from modeled behavior
 
 # Beyond...
 
