@@ -37,11 +37,14 @@ This may be moved to paper only, depending on time/detail required
 ## Poisson/Negative Binomial Model
 
 # Challenges for implementation
-While the language used to describe this method can be complicated, 
-people who work with reversible jump methods promise that promise that 
-it is actually very simple to employ and a full understanding of the 
-method is not neccessary. 
 
+## The Challenges Aren't What You Think
+
+Implementing reversible algorithms may seem difficult for several reasons. 
+- The language required to present these samplers is necessarily complex
+- The underlying structure of the samplers is important
+- In terms of implementation, most cases 
+- The complicated nature of the relationships 
 
 ## Choosing priors
 
