@@ -30,6 +30,11 @@ This may be moved to paper only, depending on time/detail required
 ## Poisson/Negative Binomial Model
 
 # Challenges for implementation
+While the language used to describe this method can be complicated, 
+people who work with reversible jump methods promise that promise that 
+it is actually very simple to employ and a full understanding of the 
+method is not neccessary. 
+
 
 ## Choosing priors
 
