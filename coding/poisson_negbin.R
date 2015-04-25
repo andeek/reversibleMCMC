@@ -80,7 +80,7 @@ rjmcmc_sampler <- function(y, lambda0, kappa0, k0=1, p=0.5, mu, sigma, alphal, b
   kappa <- kappa0
   k <- k0
   
-  for(i in 1:mc.iter){
+  for(i in 1:mc.iter) {
     # Reversible JUMP MCMC to move between models
     if(k==1){
       u <- rnorm(1, 0, sigma)
@@ -97,7 +97,7 @@ rjmcmc_sampler <- function(y, lambda0, kappa0, k0=1, p=0.5, mu, sigma, alphal, b
         kappa_new <- NA
         lambda_new <- sim_lambda(lambda, y, alphal, betal, kappa=NULL, k, al, bl)
       }
-    }else{
+    } else {
       theta <- c(lambda, kappa)
       theta_new <- lambda
       accept <- log(p) + pk1(y, theta_new, alphal, betal) - log(1-p) - pk2(y, theta, alphal, betal, alphak, betak) + log(dnorm(log(theta[2]/mu), 0, sigma)) - log(theta[2])
@@ -106,7 +106,7 @@ rjmcmc_sampler <- function(y, lambda0, kappa0, k0=1, p=0.5, mu, sigma, alphal, b
         # within model moves
         kappa_new <- kappa
         lambda_new <- sim_lambda(lambda, y, alphal, betal, kappa=NULL, k, al, bl)
-      }else{
+      } else {
         # within model moves
         kappa_new <- sim_kappa(lambda, y, alphak, betak, kappa, ak, bk) 
         lambda_new <- sim_lambda(lambda, y, alphal, betal, kappa_new, k, al, bl)
@@ -145,4 +145,8 @@ qplot(data=testk1, x=lambda, geom="density")
 qplot(data=testk2, x=lambda, geom="density")
 qplot(data=testk2, x=kappa, geom="density")
 
+qplot(x=1:nrow(testk2), testk2$lambda, geom="line")
 qplot(x=1:nrow(testk2), testk2$kappa, geom="line")
+qplot(x=1:nrow(testk1), testk1$lambda, geom="line")
+
+
