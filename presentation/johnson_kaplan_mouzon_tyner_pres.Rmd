@@ -1,7 +1,7 @@
 ---
 title: "Reversible Jump MCMC"
 author: "Maggie Johnson, Andee Kaplan, Ian Mouzon, and Samantha Tyner"
-date: "April 10, 2015"
+date: "April 28, 2015"
 output: 
   ioslides_presentation:
     css: css/style.css
@@ -25,11 +25,22 @@ To solve problems where
 
 ![http://giphy.com/gifs/jump-NupHKw9kFaaEE](images/kris_kross.gif)
 
-## Reversible Chain
+## Reversible Chain {.smaller}
 
-  - Definition
-  - Animation
-  - Detailed balance condition
+  - A *reversible Markov chain* is one which the transition distribution $P$ satisfies the *detailed balance condition*.
+  - The *detailed balance condition* states for all Borel sets $A, B \subset \mathcal{X}$:
+  
+    $$
+    \int_{(x, x') \in A \times B} \pi(dx) P(x, dx') = \int_{(x, x') \in A \times B} \pi(dx') P(x', dx)
+    $$  
+
+<iframe scrolling="no" style="display: block; float: left;" width="100%" height="50" src="http://setosa.io/markov/no-controls-with-hash.html#%7B%22tm%22%3A%5B%5B0.5%2C0.5%5D%2C%5B0.5%2C0.5%5D%5D%7D"></iframe>
+
+<div class="notes">
+What does this say? It says that there is perfect balance between the probability flow from state to state, you can reverse the direction of state transition and nothing has changed in terms of the flow.
+
+This assumption is actually the commonly made assumption in MCMC, including Metropolis-Hastings sampling,  and it becomes of prime importance in reversible jump mcmc were we are not only transitioning within model (changing parameters), but also between models.
+</div>
 
 ## Algorithm (model selection)
 If the current state of the chain is $(k, \boldsymbol \theta_k)$, then:
@@ -165,9 +176,3 @@ $$
 [@green2003trans]
 
 ## References {#appendix}
-
-
-
-
-
-
