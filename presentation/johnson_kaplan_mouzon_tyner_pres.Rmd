@@ -42,6 +42,15 @@ What does this say? It says that there is perfect balance between the probabilit
 This assumption is actually the commonly made assumption in MCMC, including Metropolis-Hastings sampling,  and it becomes of prime importance in reversible jump mcmc were we are not only transitioning within model (changing parameters), but also between models.
 </div>
 
+## For Model Selection
+Scenario:
+
+  - Have a *countable* collection of models: $\{\mathcal{M}_k: k \in \mathcal{M}\}$
+  - Each model $\mathcal{M}_k$ has unknown parameter vector $\boldsymbol \theta_k$
+  - Length of parameter vector may vary from model to model
+  - Notation: $(k, \boldsymbol \theta_k)$ refers to model $k$ and its parameter vector
+  - Notation: $\pi(\theta_{k})$ is the target distribution 
+
 ## Algorithm (model selection)
 If the current state of the chain is $(k, \boldsymbol \theta_k)$, then:
 
@@ -55,6 +64,18 @@ If the current state of the chain is $(k, \boldsymbol \theta_k)$, then:
       $$
       
       Where $u^* \sim g'$ [@chen2000monte, pp. 303]
+
+## For Bayesian Model Selection
+
+  - Assign each $\mathcal{M}_k$ a prior probability $p(k)$
+  - Target distribution becomes the posterior distribution of each model, $\pi(\boldsymbol{ \theta_{k}}|D,\mathcal{M}_{k})$, where $D$ is the data
+  - Acceptance probability becomes 
+  
+      $$
+      \alpha = \min\left\{1, \frac{p(k^*)\pi( \theta_{k^*}^*|D,\mathcal{M}_{k^*}) j(k^*| k) g'(\boldsymbol u^*)}{p(k)\pi(\boldsymbol \theta_k |D,\mathcal{M}_k ) j(k|k^*) g(\boldsymbol u)} \left|\frac{\partial h'( \theta_{k^*}^*, \boldsymbol u^*)}{\partial (\boldsymbol \theta_k, \boldsymbol u)}\right|\right\}
+      $$
+
+  - Posterior model probability is $\hat{p}(k | D) = \frac{1}{L} \sum\limits_{l = 1}^L \mathcal{I}(k_l = k)$ where $L$ is the length of the MCMC chain and $k_l$ is the model chosen at iteration $l$. 
 
 # Example
 

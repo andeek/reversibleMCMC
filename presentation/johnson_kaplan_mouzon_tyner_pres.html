@@ -126,6 +126,18 @@
 
 This assumption is actually the commonly made assumption in MCMC, including Metropolis-Hastings sampling, and it becomes of prime importance in reversible jump mcmc were we are not only transitioning within model (changing parameters), but also between models.</section></aside>
 
+</article></slide><slide class=''><hgroup><h2>For Model Selection</h2></hgroup><article  id="for-model-selection">
+
+<p>Scenario:</p>
+
+<ul>
+<li>Have a <em>countable</em> collection of models: \(\{\mathcal{M}_k: k \in \mathcal{M}\}\)</li>
+<li>Each model \(\mathcal{M}_k\) has unknown parameter vector \(\boldsymbol \theta_k\)</li>
+<li>Length of parameter vector may vary from model to model</li>
+<li>Notation: \((k, \boldsymbol \theta_k)\) refers to model \(k\) and its parameter vector</li>
+<li>Notation: \(\pi(\theta_{k})\) is the target distribution</li>
+</ul>
+
 </article></slide><slide class=''><hgroup><h2>Algorithm (model selection)</h2></hgroup><article  id="algorithm-model-selection">
 
 <p>If the current state of the chain is \((k, \boldsymbol \theta_k)\), then:</p>
@@ -142,6 +154,19 @@ This assumption is actually the commonly made assumption in MCMC, including Metr
 
 <p>Where \(u^* \sim g&#39;\) <span class="cite">(Chen, Ibrahim, and Shao 2000, 303)</span></p></li>
 </ol>
+
+</article></slide><slide class=''><hgroup><h2>For Bayesian Model Selection</h2></hgroup><article  id="for-bayesian-model-selection">
+
+<ul>
+<li>Assign each \(\mathcal{M}_k\) a prior probability \(p(k)\)</li>
+<li>Target distribution becomes the posterior distribution of each model, \(\pi(\boldsymbol{ \theta_{k}}|D,\mathcal{M}_{k})\), where \(D\) is the data</li>
+<li><p>Acceptance probability becomes</p>
+
+<p>\[
+  \alpha = \min\left\{1, \frac{p(k^*)\pi( \theta_{k^*}^*|D,\mathcal{M}_{k^*}) j(k^*| k) g&#39;(\boldsymbol u^*)}{p(k)\pi(\boldsymbol \theta_k |D,\mathcal{M}_k ) j(k|k^*) g(\boldsymbol u)} \left|\frac{\partial h&#39;( \theta_{k^*}^*, \boldsymbol u^*)}{\partial (\boldsymbol \theta_k, \boldsymbol u)}\right|\right\}
+  \]</p></li>
+<li><p>Posterior model probability is \(\hat{p}(k | D) = \frac{1}{L} \sum\limits_{l = 1}^L \mathcal{I}(k_l = k)\) where \(L\) is the length of the MCMC chain and \(k_l\) is the model chosen at iteration \(l\).</p></li>
+</ul>
 
 </article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Example</h2></hgroup><article  id="example">
 
