@@ -18,19 +18,78 @@ output:
     fig_caption: yes
     number_sections: yes
     template: tex/nips_template.tex
+bibliography: bibliography.bib
+nocite: | 
+  @carlin1995bayesian, @grenander1994representations, @stephens2000bayesian, @hastie2005towards, @jasra2008interacting, @geman1984stochastic, @green2003trans
 abstract: |
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sed augue sem. Mauris eget sem sed dui ornare mattis. Donec mauris lectus, auctor vitae rutrum quis, tempor a augue. Aliquam lobortis justo est, et pulvinar ipsum vulputate sed. Nulla feugiat nibh nec placerat aliquet. Nulla fermentum magna dolor, eu tristique nisl pulvinar nec. Nam non sapien at nibh maximus maximus. Praesent erat sapien, lacinia et turpis quis, aliquet consequat urna.
+  Reversible jump MCMC is a mechanism designed to solve trans-dimensional problems, where the number of parameters one wishes to estimate, in addition to the parameter values themselves, is also unknown.  RJMCMC has applications in variable selection, Bayesian model selection, multiple change-point problems, and many more.  In this paper, we provide an introduction to RJMCMC, demonstrate its functionality in an example (or two?), discuss the problems that arise most frequently in RJMCMC, and present some extensions of the theory and application of RJMCMC.  
 ---
 
 # Introduction
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur consequat, massa sed interdum imperdiet, massa urna porta ipsum, at blandit nunc lectus sit amet odio. Sed ac ultricies lacus. Mauris pellentesque commodo lorem a sagittis. Nam neque turpis, vulputate quis mattis sit amet, interdum sit amet tortor. Morbi imperdiet dapibus velit at pharetra. Maecenas tincidunt libero rhoncus sagittis ornare. Praesent sit amet massa ut magna faucibus dictum non sagittis odio. Duis a commodo ex. Vivamus quis augue nunc. Phasellus feugiat risus non sapien viverra, sit amet imperdiet lectus efficitur. In mollis iaculis erat, vitae malesuada neque faucibus ut. Donec aliquet luctus dolor non sodales.
 
-Sed ac vulputate mi. Nunc tempor purus sit amet volutpat gravida. Aliquam consequat enim eu pretium rhoncus. Maecenas elementum tellus eget nisi ultrices commodo. Duis dictum luctus viverra. Aliquam viverra, elit sit amet tempus fringilla, lectus felis dapibus tortor, et vulputate felis erat et sapien. Nunc nisi lacus, tincidunt eu justo non, egestas fermentum ligula. Nulla a lectus sed nisl venenatis scelerisque ac vel ex. Fusce vel auctor neque, quis tempor metus. Aenean semper ante id turpis dignissim, vel sagittis nisl dignissim. Nullam sit amet massa sed lacus gravida ullamcorper sed eget mi. Sed facilisis eleifend pretium. In hac habitasse platea dictumst. Sed et aliquam magna, id gravida nulla.
+Reversible jump Markov Chain Monte Carlo sampling was developed to solve trans-dimensional problems.  Trans-dimensional problems are those in which "the number of things you don't know is one of the things you don't know" [@green2009reversible].  These problems present great challenges to the usual statistical methods.  With RJMCMC, however, you can jump from one parameter space to another without too much difficulty.  Because it is also reversible, the probability of moving from state A to state B is the same as the probability of moving from state B to state A.  This is important for jumping between parameter spaces because this reversibility is what gives the sampler its ability to explore the model space in its entirety.    
 
-# Findings
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur consequat, massa sed interdum imperdiet, massa urna porta ipsum, at blandit nunc lectus sit amet odio. Sed ac ultricies lacus. Mauris pellentesque commodo lorem a sagittis. Nam neque turpis, vulputate quis mattis sit amet, interdum sit amet tortor. Morbi imperdiet dapibus velit at pharetra. Maecenas tincidunt libero rhoncus sagittis ornare. Praesent sit amet massa ut magna faucibus dictum non sagittis odio. Duis a commodo ex. Vivamus quis augue nunc. Phasellus feugiat risus non sapien viverra, sit amet imperdiet lectus efficitur. In mollis iaculis erat, vitae malesuada neque faucibus ut. Donec aliquet luctus dolor non sodales.
+# Problem Structure
 
-Sed ac vulputate mi. Nunc tempor purus sit amet volutpat gravida. Aliquam consequat enim eu pretium rhoncus. Maecenas elementum tellus eget nisi ultrices commodo. Duis dictum luctus viverra. Aliquam viverra, elit sit amet tempus fringilla, lectus felis dapibus tortor, et vulputate felis erat et sapien. Nunc nisi lacus, tincidunt eu justo non, egestas fermentum ligula. Nulla a lectus sed nisl venenatis scelerisque ac vel ex. Fusce vel auctor neque, quis tempor metus. Aenean semper ante id turpis dignissim, vel sagittis nisl dignissim. Nullam sit amet massa sed lacus gravida ullamcorper sed eget mi. Sed facilisis eleifend pretium. In hac habitasse platea dictumst. Sed et aliquam magna, id gravida nulla.
+## Problem Set Up
+
+## A General Algorithm
+
+The following is a general algorithm for implementation of an RJMCMC sampler. If the current state of the chain is $(k, \boldsymbol \theta_k)$, then:
+
+  1. Propose a new model $\mathcal{M}_{k^*}$ with probability $j(k^*| k)$.
+  2. Generate $\boldsymbol u$ from a specified proposal density $g(\boldsymbol u)$
+  3. Set $(\boldsymbol \theta_{k^*}^*, \boldsymbol u^*) = h'(\boldsymbol \theta_k, \boldsymbol u)$ where $h'$ is a bijection between $(\boldsymbol \theta_k, \boldsymbol u)$ and $(\boldsymbol \theta^*_{^*}, \boldsymbol u^*)$ where the following must hold: $dim(\boldsymbol \theta_k) + dim(\boldsymbol u) = dim(\boldsymbol \theta^*_{k^*}) + dim(\boldsymbol u^*)$.
+  4. Accept the proposed move to $(k^*, \boldsymbol \theta_{k^*}^*)$ with probability
+  
+      $$
+      \alpha = \min\left\{1, \frac{\pi( \theta_{k^*}^*) j(k^*| k) g'(\boldsymbol u^*)}{\pi(\boldsymbol \theta_k) j(k|k^*) g(\boldsymbol u)} \left|\frac{\partial h'( \theta_{k^*}^*, \boldsymbol u^*)}{\partial (\boldsymbol \theta_k, \boldsymbol u)}\right|\right\}
+      $$
+      
+      Where $u^* \sim g'$ [@chen2000monte, pp. 303]
+
+# Example: Soccer Data
+
+# Example: Homework 7 
+(Sam says: I'm gonna try to get this going this week.)
+
+# Challenges of Implementation
+Implementing reversible algorithms may seem difficult for several reasons. First, much of the work being done on the topic is from the perspective of MCMC "experts," and so their writings can be incredibly dense and make for very time-consuming reads.  Additionally, the language required to present these samplers is necessarily complex, which also adds to the difficulty of interpretation.  These issues, however, are not the true cause of difficulty. In the practical sense, implementation is *actually* fairly easy. Only a very few steps require a detailed understanding of the underlying theoretical framework: the rest is fairly straightforward computation. Furthermore, there is little justification needed to guarantee a sampler is able to simulate from a target. So, what are the true challenges of implementing an RJMCMC sampler? 
+
+## Efficiency
+
+The main issue is usually not whether a proposal mechanism will work, but whether it will work *effeciently*. Ineffecient chains are very slow to explore the support of the target distribution.  This also means that they will take more time to converge to the target distribution.  The tuning for a specific problem can be arduous, which has lead to work on finding useful general techniques for selecting parts of the mechanism. 
+
+Improving efficiency requires the proposed state $(k', \theta'_{k'})$ and the existitng state $(k, \theta_k)$ have similar state spaces. There are two main classes of methods for ensuring this:
+
+  1. *Order methods*: parameterizing proposals (our $g(u)$) for a given $h(\theta, u) = (\theta', u')$.
+  2. *Saturated state*: augment the state space $\mathcal{X}$ with auxiliary variables
+
+### Order Methods
+
+For a given initial state $\theta_k$ in model $k$ we can find an equivalent state $c_{k,k'}(\theta_k)$ in model $k'$. We call these equivalent states our "centering points."  If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, then moving from one model ($k$) to another ($k'$) will be encouraged and the state space will be more thoroughly explored.
+  
+The *order* of the method determines the type of constraint imposed.  For the $0^{th}$-order, $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$, while for the $k^{th}$-order, $\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$.  
+
+### Saturated State Space
+
+For a given state space $\mathcal{X}$, we can add additional "auxiliary" variables so that each model has the same number of parameters as the largest model. This means that changing between models with different numbers of parameters is equivalent to changing the values of the auxiliary variables.  Using this method, between state changes become more likely, and so the sampler covers the set of possible proposals more quickly.  
+
+### Other Ways to Improve Proposals
+
+Another way to improve the proposal is through adaptive sampling: using past observations, even rejected ones, to make mid-run adjustments to the proposal.  There are two types of adaptive sampling. The first is *diminishing* adaptive sampling. In diminishing adaptive sampling, there is continuous adaptation, but at a decreasing rate.  The second type is adaptive sampling *through regeneration*.  In this method of adaptive sampling, if regions of the state space exist where incoming chains are likely to be independent of outgoing chains, adapt as chains enter and leave them.  Finally, there is delayed rejection: if proposal $x'$ is rejected, try a backup proposal $x''$ instead.  
+
+## Finding Appropriate Diagnostics
+
+The main issue in improving efficiency is in promoting transitions between models, namely transitions between state space dimensions. However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.  *Transitioning* between models is not always the favored choice. Chains may "stabilize" quickly inside a model, so that chain will provide good diagnostics *until* the chain moves to sample from a different model. At that point, the diagnostics become much trickier. 
+
+Recent work has been focused on accounting for the differences in "within" run and "between" run variability: finding ways account for how much disruption in chain behavior is natural when switching dimensions.  This idea is similar to "within" model and "between" model variability to account for expected departure from modeled behavior.  
+
+# Extensions & Alternatives 
+
+# Conclusion
+
+# Code Appendix
 
 # References
 
