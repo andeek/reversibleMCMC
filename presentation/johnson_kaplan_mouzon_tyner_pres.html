@@ -176,15 +176,74 @@ This assumption is actually the commonly made assumption in MCMC, including Metr
 <li>Taking more <em>time</em> to converge to the target distribution</li>
 </ul>
 
-<p>Improving efficiency requires the posterior of the proposed state \((k&#39;, \theta&#39;_{k&#39;})\) and the posterior of the existitng state \((k, \theta_k)\) to be similar.</p>
+<p>The tuning for a specific problem can be arduous, which has lead to work on finding useful general techniques for selecting parts of the mechanism.</p>
 
-<p>The tuning for a specific problem can be arduous, leading to the following general approaches</p>
+</article></slide><slide class=''><hgroup><h2>General Approaches to Improve Efficiency</h2></hgroup><article  id="general-approaches-to-improve-efficiency">
 
-</article></slide><slide class=''><hgroup><h2>Choosing priors</h2></hgroup><article  id="choosing-priors">
+<p>Improving efficiency requires the proposed state \((k&#39;, \theta&#39;_{k&#39;})\) and the existitng state \((k, \theta_k)\) have similar state spaces.</p>
 
-</article></slide><slide class=''><hgroup><h2>Tuning</h2></hgroup><article  id="tuning">
+<p>There are two main classes of methods for ensuring this:</p>
 
-</article></slide><slide class=''><hgroup><h2>Diagnostics</h2></hgroup><article  id="diagnostics">
+<ul>
+<li><em>Order methods</em>: parameterizing proposals (our \(g(u)\)) for a given \(h(\theta, u) = (\theta&#39;, u&#39;)\).</li>
+<li><em>Saturated state</em>: augment the state space \(\mathcal{X}\) with auxiliary variables</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Order methods</h2></hgroup><article  id="order-methods">
+
+<ul>
+<li>For a given initial state \(\theta_k\) in model \(k\) we can find an equivalent state \(c_{k,k&#39;}(\theta_k)\) in model \(k&#39;\).<br/></li>
+<li>We call these equiavlent states are called &quot;centering points&quot;</li>
+<li>If we constrain \(A((k,\theta_k), (k&#39;, c_{k,k&#39;}(\theta_k)\) to be, say, 1, then moving from one model (\(k\)) to another (\(k&#39;\)) will be encouraged and the state space will be more thoroughly explored.</li>
+</ul>
+
+<p>The <em>order</em> of the method determines the type of constraint imposed:</p>
+
+<ul>
+<li>\(0^{th}\)-order: \(A((k,\theta_k), (k&#39;, c_{k,k&#39;}(\theta_k) = 1\)</li>
+<li>\(k^{th}\)-order: \(\nabla A((k,\theta_k), (k&#39;, c_{k,k&#39;}(\theta_k) = \mathbf{0}\)</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Saturated State Space Approach</h2></hgroup><article  id="saturated-state-space-approach">
+
+<ul>
+<li>For a given state space \(\mathcal{X}\) add additional &quot;auxiliary&quot; variables so that each model has the same number of parameters as the largest model.</li>
+<li>This means that changing between models with different numbers of parameters is equivalent to changing the auxiliary variables in or out</li>
+<li>Between state changes become more likely meaning the sampler covers the set of possible proposals more quickly</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Other Ways to Improve Proposals</h2></hgroup><article  id="other-ways-to-improve-proposals">
+
+<ul>
+<li><p>Adaptive sampling: using past observations (even rejected ones) to make mid-run adjustments to the proposal</p>
+
+<ul>
+<li>Type 1: <em>diminishing</em> - continuous adaptation, but at a decreasing rate</li>
+<li>Type 2: <em>through regeneration</em> - if regions of the state space exists where incoming chains are likely independent of outgoing chains, adapt as chains enter and leave them</li>
+</ul></li>
+<li><p>Delayed rejection: if proposal \(x&#39;\) is rejected, try a backup proposal \(x&#39;&#39;\)</p></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Finding Appropriate Diagnostics</h2></hgroup><article  id="finding-appropriate-diagnostics">
+
+<ul>
+<li>The main issue in improving efficiency is in promoting transitions between models - transitions between state space dimensions.</li>
+<li>However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.</li>
+<li>Transitioning between models is not always the favored choice
+
+<ul>
+<li>Chains may &quot;stabilize&quot; quickly inside a model</li>
+<li>Meaning the chain provides good diagnostics</li>
+<li><strong>Until</strong> the chain moves to sample from a different model</li>
+<li>At which point the diagnostics</li>
+</ul></li>
+<li>Recent work is focused on accounting for the differences in &quot;within&quot; run and &quot;between&quot; run variability
+
+<ul>
+<li>Meaning finding ways account for how much disruption in chain behavior is natural when switching dimensions</li>
+<li>Similar to &quot;within&quot; model and &quot;between&quot; model variability to account for expected departure from modeled behavior</li>
+</ul></li>
+</ul>
 
 </article></slide><slide class='segue dark nobackground'><hgroup class = 'auto-fadein'><h2>Beyond&#8230;</h2></hgroup><article  id="beyond...">
 

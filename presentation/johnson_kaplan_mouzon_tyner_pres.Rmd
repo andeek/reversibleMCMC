@@ -114,7 +114,7 @@ The *order* of the method determines the type of constraint imposed:
   - This means that changing between models with different numbers of parameters is equivalent to changing the auxiliary variables in or out
   - Between state changes become more likely meaning the sampler covers the set of possible proposals more quickly
 
-# Other Ways to Improve Proposals
+## Other Ways to Improve Proposals
 
   - Adaptive sampling: using past observations (even rejected ones) to make mid-run adjustments to the proposal
 
