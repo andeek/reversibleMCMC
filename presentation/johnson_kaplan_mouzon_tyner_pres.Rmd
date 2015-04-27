@@ -273,23 +273,35 @@ The *order* of the method determines the type of constraint imposed:
 
 ## Finding Appropriate Diagnostics
 
+  - Diagnostics provide clear and simple rules for determining when a chain is behaving like we expect.
+  - But improving efficiency means promoting transitions between models
+  - Transitioning between models is not always the favored choice 
+     - Chains may "stabilize" quickly inside a model (creating good diagnostics)
+     - **Until** the chain moves to sample from a different model (at which point the diagnostics get worse)
+  - Recent work focused on the differences in "within run" and "between run" variability
+     - Meaning accounting for how much disruption in chain behavior is a result of switching dimensions
+     - Similar to "within" model and "between" model variability to account for expected departure from modeled behavior
+
+<div class="notes">
   - The main issue in improving efficiency is in promoting transitions between models - transitions between state space dimensions.
-  - However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.
+  - However when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.
   - Transitioning between models is not always the favored choice 
      - Chains may "stabilize" quickly inside a model 
      - Meaning the chain provides good diagnostics 
      - **Until** the chain moves to sample from a different model
-     - At which point the diagnostics 
+     - At which point the diagnostics get worse
+  - However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.
   - Recent work is focused on accounting for the differences in "within" run and "between" run variability
      - Meaning finding ways account for how much disruption in chain behavior is natural when switching dimensions
      - Similar to "within" model and "between" model variability to account for expected departure from modeled behavior
+</div>
 
 # Beyond...
 
 ## Extensions to...
 
   - Adaptive RJMCMC [@hastie2005towards]
-  - Interacting Sequential MCMC [@jasra2008interacting]
+  - Interacting Sequential MCMC [@jasra2009interacting]
   - Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
 
 <div class="notes">
