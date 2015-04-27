@@ -300,7 +300,7 @@ The *order* of the method determines the type of constraint imposed:
 ## Extensions to...
 
   - Adaptive RJMCMC [@hastie2005towards]
-  - Interacting Sequential MCMC [@jasra2009interacting]
+  - Interacting Sequential MCMC [@jasra2008interacting]
   - Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
 
 <div class="notes">
