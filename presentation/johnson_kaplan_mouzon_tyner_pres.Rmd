@@ -208,10 +208,6 @@ add diagram/flow chart
   
 ![density](images/densities.png)
 
-## Changepoint Problem - HW 7
-
-very unlikely this I will finish this/get to run, but if so will briefly summarize here
-
 # Challenges for implementation
 
 ## The Challenges Aren't What You Think
