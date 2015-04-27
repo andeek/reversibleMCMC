@@ -188,7 +188,7 @@ This assumption is actually the commonly made assumption in MCMC, including Metr
 <p>Under an identically distributed Negative-Binomial model, two parameters \(\lambda &gt; 0\), \(\kappa &gt; 0\)</p>
 
 <p>\[
-  \mathcal{L}(Y|\lambda, \kappa) = \prod_{i=1}^N \dfrac{\lambda^{Y_i}}{Y_i!}\dfrac{\Gamma \left(1/\kappa + Y_i\right)}{\Gamma \left(1/\kappa\right)\left(1/\kappa + \lambda)^{Y_i}}\left(1+\kappa \lambda\right)^{-1/\kappa}
+  \mathcal{L}(Y|\lambda, \kappa) = \prod_{i=1}^N \dfrac{\lambda^{Y_i}}{Y_i!} \dfrac{\Gamma \left(1/\kappa + Y_i\right)}{\Gamma \left(1/\kappa\right)\left(1/\kappa + \lambda\right)^{Y_i}}\left(1+\kappa \lambda\right)^{-1/\kappa}
   \]</p>
 
 </article></slide><slide class=''><hgroup><h2>The Problem Setup</h2></hgroup><article  id="the-problem-setup" class="smaller">
@@ -218,7 +218,8 @@ This assumption is actually the commonly made assumption in MCMC, including Metr
 <p>\[
   \pi(k, \theta_k| Y) = \begin{cases}
     \frac{1}{2} \mathcal{L}(Y|\lambda) \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) &amp; k=1\\
-    \frac{1}{2} \mathcal{L}(Y|\lambda) \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa}) &amp; k=2\\    
+    \frac{1}{2} \mathcal{L}(Y|\lambda) \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa}) &amp; k=2\\ 
+    \end{cases}
   \]</p>
 
 </article></slide><slide class=''><hgroup><h2>RJMCMC to move between models</h2></hgroup><article  id="rjmcmc-to-move-between-models" class="smaller">
@@ -256,10 +257,9 @@ u&#39; = log(\theta_2&#39; / \mu)
 <p>Let \(m=\left\{(1,2), (2,1)\right\}\).</p>
 
 <ul>
-<li><p>\(\alpha_m(x,x&#39;) = \text{min}\left\{1, A_m(x, x&#39;) \right\}\) where \[
+<li>\(\alpha_m(x,x&#39;) = \text{min}\left\{1, A_m(x, x&#39;) \right\}\) where \[
   A_m = \dfrac{\pi(x&#39;)j_m(x&#39;)g_m&#39;(u&#39;)}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial(\theta_k&#39;, u&#39;)}{\partial (\theta_k, u)}  \right\vert
-  \]</p></li>
-<li><p>Assume probability of moving from 2 to 1 is the same as moving from 1 to 2</p></li>
+  \]</li>
 </ul>
 
 <p><strong>Model 1 -&gt; Model 2</strong></p>
@@ -268,7 +268,8 @@ u&#39; = log(\theta_2&#39; / \mu)
   |J| = \left\vert \begin{array}{cc}
   \dfrac{\partial \theta}{\partial \lambda} &amp; \dfrac{\partial \theta}{\partial u}\\
   \dfrac{\partial \mu e^u}{\partial \lambda} &amp; \dfrac{\partial \mu e^u}{\partial u}\\
-  \end{array}\right\vert = \begin{array}{cc}
+  \end{array}\right\vert = \left\vert
+  \begin{array}{cc}
     1 &amp; 0\\
    0 &amp; \mu e^u\\
   \end{array}\right\vert = \mu e^u
@@ -280,9 +281,9 @@ u&#39; = log(\theta_2&#39; / \mu)
   |J| = \left\vert \begin{array}{cc}
   \dfrac{\partial \theta}{\partial \lambda} &amp; \dfrac{\partial \theta}{\partial u&#39;}\\
   \dfrac{\partial log(\theta_2&#39;/\mu)}{\partial \lambda} &amp; \dfrac{\partial log(\theta_2&#39;/\mu)}{\partial \theta_2&#39;}\\
-  \end{array}\right\vert = \begin{array}{cc}
+  \end{array}\right\vert = \left\vert \begin{array}{cc}
     1 &amp; 0\\
-   0 &amp; (\mu/theta_2&#39;)\mu\\
+   0 &amp; (\mu/\theta_2&#39;)\mu\\
   \end{array}\right\vert = 1/\theta_2&#39;
   \]</p>
 
