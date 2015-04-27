@@ -79,7 +79,138 @@ If the current state of the chain is $(k, \boldsymbol \theta_k)$, then:
 
 # Example
 
-## Poisson/Negative Binomial Model
+## Poisson vs Negative Binomial Model | [@green2009reversible] {.smaller}
+If count data are overdispersed relative to the Poisson distribution, the Negative-Binomial distribution may be more appropriate.
+
+  - Soccer data: Total goals from 1,140 English Premier league games, 2005/2006 to 2007/2008 seasons
+  - Is data better modeled using Poisson or Negative-Binomial distribution?
+  
+Under an identically distributed Poisson model, one parameter $\lambda > 0$
+
+  $$
+  \mathcal{L}(Y|\lambda) = \prod_{i=1}^N \dfrac{\lambda^{Y_i}}{Y_i!}e^{-\lambda}
+  $$
+
+Under an identically distributed Negative-Binomial model, two parameters $\lambda > 0$, $\kappa > 0$
+
+  $$
+  \mathcal{L}(Y|\lambda, \kappa) = \prod_{i=1}^N \dfrac{\lambda^{Y_i}}{Y_i!} \dfrac{\Gamma \left(1/\kappa + Y_i\right)}{\Gamma \left(1/\kappa\right)\left(1/\kappa + \lambda\right)^{Y_i}}\left(1+\kappa \lambda\right)^{-1/\kappa}
+  $$  
+
+## The Problem Setup {.smaller}
+
+  - $\lambda \sim$ Gamma($\alpha_{\lambda}$, $\beta_{\lambda}$)
+  - $\kappa \sim$ Gamma($\alpha_{\kappa}$, $\beta_{\kappa}$)
+  - $P(k=1) = P(k=2) = 0.5$
+  
+Under Model $k = 1$, let $\theta_1 = \lambda$
+
+  - $Y_i \sim$ Poisson($\lambda$)
+  - $\lambda | k=1 \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$
+
+
+Under Model $k = 2$, let $\theta_2 = (\lambda, \kappa)$
+
+  - $Y_i \sim$ NegBin($\lambda$, $\kappa$)
+  - $\lambda, \kappa | k=2 \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \times \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$
+
+Posterior Distribution 
+
+  $$
+  \pi(k, \theta_k| Y) = \begin{cases}
+    \frac{1}{2} \mathcal{L}(Y|\lambda) \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) & k=1\\
+    \frac{1}{2} \mathcal{L}(Y|\lambda) \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa}) & k=2\\ 
+    \end{cases}
+  $$
+  
+## RJMCMC to move between models {.smaller}
+
+Since the two models are of differing dimensions, need reversible jump to move between models.
+
+**Move from Model 1 to Model 2**
+
+  - Let $g$ be the $N(0,\sigma^2)$ density for fixed $\sigma$. Generate $u$ from $g$.    
+  - Let $x = (1, \theta)$. Set $x' = (2, \theta')$, where
+    
+    $$ 
+    \theta' = h(\theta, u) = (\theta, \mu e^u)
+    $$
+
+    for fixed $\mu$.
+
+**Move from Model 2 to Model 1**
+
+  - To ensure detailed balance condition holds, let 
+    $$
+    (\theta, u) = h'(\theta') = (\theta', log(\theta_2'/\mu))
+    $$
+  - Doesn't require new random variable $u'$. 
+    
+    $$
+    u' = log(\theta_2' / \mu)
+    $$
+
+## Acceptance probabilities {.smaller}
+
+Let $m=\left\{(1,2), (2,1)\right\}$. 
+
+  - $\alpha_m(x,x') = \text{min}\left\{1, A_m(x, x') \right\}$ where
+  $$
+  A_m = \dfrac{\pi(x')j_m(x')g_m'(u')}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial(\theta_k', u')}{\partial (\theta_k, u)}  \right\vert
+  $$
+  
+**Model 1 -> Model 2**
+
+  $$
+  |J| = \left\vert \begin{array}{cc}
+  \dfrac{\partial \theta}{\partial \lambda} & \dfrac{\partial \theta}{\partial u}\\
+  \dfrac{\partial \mu e^u}{\partial \lambda} & \dfrac{\partial \mu e^u}{\partial u}\\
+  \end{array}\right\vert = \left\vert
+  \begin{array}{cc}
+    1 & 0\\
+   0 & \mu e^u\\
+  \end{array}\right\vert = \mu e^u
+  $$
+
+**Model 2 -> Model 1**
+
+  $$
+  |J| = \left\vert \begin{array}{cc}
+  \dfrac{\partial \theta}{\partial \lambda} & \dfrac{\partial \theta}{\partial u'}\\
+  \dfrac{\partial log(\theta_2'/\mu)}{\partial \lambda} & \dfrac{\partial log(\theta_2'/\mu)}{\partial \theta_2'}\\
+  \end{array}\right\vert = \left\vert \begin{array}{cc}
+    1 & 0\\
+   0 & (\mu/\theta_2')\mu\\
+  \end{array}\right\vert = 1/\theta_2'
+  $$
+
+## Acceptance probabilities, cont. {.smaller}
+
+**Move from Model 1 to Model 2**
+
+  $$
+  A_{1,2} = \dfrac{\pi(2, \theta')}{\pi(1, \theta)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
+  $$
+
+**Move from Model 2 to Model 1**
+  $$
+  A_{2,1} = \dfrac{\pi(1, \theta)}{\pi(2, \theta')} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_2'/\mu)^2}{2\sigma^2} \right\rbrack  \frac{1}{\theta_2'}
+  $$
+
+## The algorithm
+
+add diagram/flow chart
+
+## Results
+
+  - 50,000 iterations with burn-in of 5,000 iterations
+  - $p(k=1|\theta, y) = 0.71$, $p(k=2|\theta, y) = 0.29$  
+  
+![density](images/densities.png)
+
+## Changepoint Problem - HW 7
+
+very unlikely this I will finish this/get to run, but if so will briefly summarize here
 
 # Challenges for implementation
 
