@@ -273,14 +273,13 @@ The *order* of the method determines the type of constraint imposed:
 
 ## Finding Appropriate Diagnostics
 
-  - Diagnostics provide clear and simple rules for determining when a chain is behaving like we expect.
-  - But improving efficiency means promoting transitions between models
-  - Transitioning between models is not always the favored choice 
-     - Chains may "stabilize" quickly inside a model (creating good diagnostics)
-     - **Until** the chain moves to sample from a different model (at which point the diagnostics get worse)
-  - Recent work focused on the differences in "within run" and "between run" variability
-     - Meaning accounting for how much disruption in chain behavior is a result of switching dimensions
-     - Similar to "within" model and "between" model variability to account for expected departure from modeled behavior
+  - Goal of Diagnostics: provide clear rules for identifying good chain behavior
+  - Problem: improving efficiency means promoting transitions between models
+  - Between model transitions are problematic: 
+     - Chains may "stabilize" quickly inside a model but slowly between models
+     - Diagnostics depend on model and transitions
+  - Recent work: understand "within run" and "between run" variability
+     - Accounting for how much disruption in chain behavior due to switching models 
 
 <div class="notes">
   - The main issue in improving efficiency is in promoting transitions between models - transitions between state space dimensions.
