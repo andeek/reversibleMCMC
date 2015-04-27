@@ -197,9 +197,9 @@ Let $m=\left\{(1,2), (2,1)\right\}$.
   A_{2,1} = \dfrac{\pi(1, \theta)}{\pi(2, \theta')} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_2'/\mu)^2}{2\sigma^2} \right\rbrack  \frac{1}{\theta_2'}
   $$
 
-## The algorithm
+## Illustrated algorithm
 
-add diagram/flow chart
+<img src="images/flowchart.png" height=500px></img>
 
 ## Results
 
