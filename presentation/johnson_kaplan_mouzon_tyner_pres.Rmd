@@ -102,12 +102,12 @@ Consider the model selection problem with $\{\mathcal{M}_k: k = 1,2\}$
 
   - Assume $P(k=1) = P(k=2) = 0.5$
   
-Under Model $k = 1$
+Under Model $k = 1$, $\theta_1 = \lambda$
 
   - $Y_i | \lambda \sim \text{Poisson}(\lambda)$
   - $\lambda \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$
 
-Under Model $k = 2$
+Under Model $k = 2$, $\theta_2 = (\lambda, \kappa)$
 
   - $Y_i|\lambda,\kappa \sim \text{NegBin}(\lambda, \kappa)$
   - $\lambda, \kappa \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \times \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$
@@ -128,19 +128,19 @@ Since the two models are of differing dimensions, need reversible jump to move b
 **Move from Model 1 to Model 2**
 
   - Let $g$ be the $N(0,\sigma^2)$ density for fixed $\sigma$. Generate $u$ from $g$.    
-  - Let $x = (1, \theta)$. Set $x' = (2, \theta')$, where
+  - Let $x = (1, \theta_1)$. Set $x' = (2, \theta_2')$, where
     
     $$ 
-    \theta' = (\theta_1', \theta_2') = h(\theta, u) = (\theta, \mu e^u)
+    \theta_2' = (\theta_{2,1}', \theta_{2,2}') = h(\theta_1, u) = (\theta_1, \mu e^u)
     $$
 
-    for fixed $\mu$. 
+    for fixed $\mu$. Now $\kappa = \mu e^u$.
 
 **Move from Model 2 to Model 1**
 
   - Let 
     $$
-    (\theta, u) = h'(\theta') = (\theta_1', log(\theta_2'/\mu))
+    (\theta_1, u) = h'(\theta_2') = (\theta_{2,1}', log(\theta_{2,2}'/\mu))
     $$
   - Doesn't require new random variable $u'$ (i.e. dim($u'$)=0) and likewise no $g'$. 
         
@@ -152,8 +152,8 @@ Let $m=\left\{(1,2), (2,1)\right\}$.
 
   - $\alpha_m(x,x') = \text{min}\left\{1, A_m(x, x') \right\}$ where
   $$
-  A_m(x,x') = \dfrac{\pi(x')j_m(x')g_m'(u')}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial(\theta_k', u')}{\partial (\theta_k, u)}  \right\vert\\
-  = \dfrac{\pi(x')}{\pi(x)g(u)}\left\vert \dfrac{\partial(\theta', u')}{\partial (\theta, u)}  \right\vert
+  A_m(x,x') = \dfrac{\pi(x')j_m(x')g_m'(u')}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial(\theta_{k'}', u')}{\partial (\theta_k, u)}  \right\vert\\
+  = \dfrac{\pi(x')}{\pi(x)g(u)}\left\vert \dfrac{\partial(\theta_{k'}', u')}{\partial (\theta_k, u)}   \right\vert
   $$
   
 **Model 1 to Model 2**
@@ -171,8 +171,8 @@ Let $m=\left\{(1,2), (2,1)\right\}$.
   $$
   |J| = \left\vert \begin{array}{cc}
     1 & 0\\
-   0 & (\mu/\theta_2')\mu\\
-  \end{array}\right\vert = 1/\theta_2'
+   0 & (\mu/\theta_{2,2}')\mu\\
+  \end{array}\right\vert = 1/\theta_{2,2}'
   $$
 
 ## Acceptance probabilities, cont. {.smaller}
@@ -181,14 +181,14 @@ Let $m=\left\{(1,2), (2,1)\right\}$.
 
 $\alpha_{1,2}(x, x') = \text{min}\{1, A_{1,2}\}$ where
   $$
-  A_{1,2} = \dfrac{\pi(2, \theta')}{\pi(1, \theta)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
+  A_{1,2} = \dfrac{\pi(2, \theta_2')}{\pi(1, \theta_1)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
   $$
 
 **Move from Model 2 to Model 1**
 
 $\alpha_{2,1}(x', x) = \text{min}\{1, A_{2,1}\}$ where
   $$
-  A_{2,1} = \dfrac{\pi(1, \theta)}{\pi(2, \theta')} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_2'/\mu)^2}{2\sigma^2} \right\rbrack  \frac{1}{\theta_2'}
+  A_{2,1} = \dfrac{\pi(1, \theta_1)}{\pi(2, \theta_2')} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_{2,2}'/\mu)^2}{2\sigma^2} \right\rbrack  \frac{1}{\theta_{2,2}'}
   $$
 
 ## The algorithm
@@ -197,8 +197,8 @@ $\alpha_{2,1}(x', x) = \text{min}\{1, A_{2,1}\}$ where
 
 ## Results
 
-  - choose $\mu = 0.015$, $\sigma=1.5$
-  - 50,000 iterations with burn-in of 5,000 iterations
+  - choose $\mu = 0.015$, $\sigma=1.5$, $\alpha_{\lambda} = 25$, $\beta_{\lambda}=10$, $\alpha_{\kappa} = 1$, $\beta_{\kappa}=10$.
+  - 50,000 iterations with burn-in of 5,000 
   - $p(k=1|\theta, y) = 0.71$, $p(k=2|\theta, y) = 0.29$  
   
 ![density](images/densities.png)
