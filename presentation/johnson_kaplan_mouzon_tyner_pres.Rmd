@@ -296,6 +296,10 @@ The *order* of the method determines the type of constraint imposed:
 
 # Beyond...
 
+## There's more?
+
+![http://img.pandawhale.com/post-28553-Steve-Jobs-mind-blown-gif-HD-T-pVbd.gif](images/mind-blown.gif)
+
 ## Extensions to...
 
   - Adaptive RJMCMC [@hastie2005towards]
@@ -303,9 +307,10 @@ The *order* of the method determines the type of constraint imposed:
   - Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
 
 <div class="notes">
-  - Efficiency gains - adaptive sampling. Idea: proposal mechanisms may be allowed to depend on past realizations of the chain, not just current state without invalidating ergodicity of process. Optimal location and scaling of proposal can be determined during run, eliminating tuning.
+  - Efficiency gains - adaptive sampling. 
+  Idea: proposal mechanisms may be allowed to depend on past realizations of the chain, not just current state. Optimal location and scaling of proposal can be determined during run, eliminating tuning. Used in the within model step or between model step, as Ian mentioned.
   - ISMC - Several sequential MC samplers run in parallel, separate subspaces. For each sampler at time $t < T$, particles updated using (reversible) MCMC moves. When a predetermined time $t^* < T$ is reached, the separate samplers are combined into a single sampler moving across all models.
-  - Simulated annealing where an optimal model may need to be determined. I.e., function $f$ quantity to minimize with some penalization terms. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate invariant dsn. Once equilibrium achieved, temperature is decreased and new phase is started from the state the chain ended in.
+  - Simulated annealing where an optimal model may need to be determined. I.e., function $f$ quantity to minimize with some penalization terms. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate (specific Boltzmann dsn) invariant dsn. Once equilibrium achieved, temperature is decreased and new phase is started from the state the chain ended in.
 </div>
 
 ## Alternatives to... | for trans-dimensional problems
@@ -315,10 +320,15 @@ The *order* of the method determines the type of constraint imposed:
   - Product Space approach [@carlin1995bayesian]
   
 <div class="notes">
-   - Jump diffusion - between model jumps and within model diffusion according to Langevin stochastic differential equation - time evolution of a subset of the degrees of freedom
-   - Marked point - variable number of items regarded as marked points (component pairs), borrows from birth-and-death simulation idea (integrating out latent variables)
+   - Genetic algorithm for change point problem
+   - Jump diffusion - between model jumps and within model diffusion according to Langevin stochastic differential equation - Had the sampler been corrected for time discretisation by using a Metropolis–Hastings accept/reject decision, this would be RJMCMC
+   - Marked point - variable number of items are regarded as marked points (component pairs), borrows from birth-and-death simulation idea for finite mixtures. Unlike reversible jump, the birth-death process accepts all across-model moves, but maintains detailed balance through the length of time spent in each model.
    - Product space - work on a more general state space, where the simulation keeps track of all $\theta_k$ instead of the current one, then the state vector is of fixed dimension avoiding trans-dimensional problem
 </div>
+
+# Thanks!
+
+Questions?
 
 # Appendix
 
