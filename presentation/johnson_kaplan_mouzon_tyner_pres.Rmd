@@ -117,7 +117,7 @@ Posterior Distribution
   $$
   \pi(k, \theta_k| Y) = \begin{cases}
     \frac{1}{2} \mathcal{L}(Y|\lambda) \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) & k=1\\
-    \frac{1}{2} \mathcal{L}(Y|\lambda) \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa}) & k=2\\ 
+    \frac{1}{2} \mathcal{L}(Y|\lambda,\kappa) \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa}) & k=2\\ 
     \end{cases}
   $$
   
