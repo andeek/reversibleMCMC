@@ -98,21 +98,19 @@ Under an identically distributed Negative-Binomial model, two parameters $\lambd
   $$  
 
 ## The Problem Setup {.smaller}
+Consider the model selection problem with $\{\mathcal{M}_k: k = 1,2\}$
 
-  - $\lambda \sim$ Gamma($\alpha_{\lambda}$, $\beta_{\lambda}$)
-  - $\kappa \sim$ Gamma($\alpha_{\kappa}$, $\beta_{\kappa}$)
-  - $P(k=1) = P(k=2) = 0.5$
+  - Assume $P(k=1) = P(k=2) = 0.5$
   
-Under Model $k = 1$, let $\theta_1 = \lambda$
+Under Model $k = 1$
 
-  - $Y_i \sim$ Poisson($\lambda$)
-  - $\lambda | k=1 \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$
+  - $Y_i | \lambda \sim$ Poisson($\lambda$)
+  - $\lambda \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$
 
+Under Model $k = 2$
 
-Under Model $k = 2$, let $\theta_2 = (\lambda, \kappa)$
-
-  - $Y_i \sim$ NegBin($\lambda$, $\kappa$)
-  - $\lambda, \kappa | k=2 \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \times \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$
+  - $Y_i|\lambda,\kappa \sim$ NegBin($\lambda$, $\kappa$)
+  - $\lambda, \kappa \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \times \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$
 
 Posterior Distribution 
 
@@ -133,22 +131,20 @@ Since the two models are of differing dimensions, need reversible jump to move b
   - Let $x = (1, \theta)$. Set $x' = (2, \theta')$, where
     
     $$ 
-    \theta' = h(\theta, u) = (\theta, \mu e^u)
+    \theta' = (\theta_1', \theta_2') = h(\theta, u) = (\theta, \mu e^u)
     $$
 
-    for fixed $\mu$.
+    for fixed $\mu$. 
 
 **Move from Model 2 to Model 1**
 
-  - To ensure detailed balance condition holds, let 
+  - Let 
     $$
-    (\theta, u) = h'(\theta') = (\theta', log(\theta_2'/\mu))
+    (\theta, u) = h'(\theta') = (\theta_1', log(\theta_2'/\mu))
     $$
-  - Doesn't require new random variable $u'$. 
-    
-    $$
-    u' = log(\theta_2' / \mu)
-    $$
+  - Doesn't require new random variable $u'$ (i.e. dim($u'$)=0) and likewise no $g'$. 
+        
+Then $(x,u)$ has dimension 2 + 1 = 3, which matches dimension of $(x',u')$ = 3 + 0 = 3.
 
 ## Acceptance probabilities {.smaller}
 
@@ -156,29 +152,24 @@ Let $m=\left\{(1,2), (2,1)\right\}$.
 
   - $\alpha_m(x,x') = \text{min}\left\{1, A_m(x, x') \right\}$ where
   $$
-  A_m = \dfrac{\pi(x')j_m(x')g_m'(u')}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial(\theta_k', u')}{\partial (\theta_k, u)}  \right\vert
+  A_m(x,x') = \dfrac{\pi(x')j_m(x')g_m'(u')}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial(\theta_k', u')}{\partial (\theta_k, u)}  \right\vert\\
+  = \dfrac{\pi(x')}{\pi(x)g(u)}\left\vert \dfrac{\partial(\theta', u')}{\partial (\theta, u)}  \right\vert
   $$
   
-**Model 1 -> Model 2**
+**Model 1 to Model 2**
 
   $$
-  |J| = \left\vert \begin{array}{cc}
-  \dfrac{\partial \theta}{\partial \lambda} & \dfrac{\partial \theta}{\partial u}\\
-  \dfrac{\partial \mu e^u}{\partial \lambda} & \dfrac{\partial \mu e^u}{\partial u}\\
-  \end{array}\right\vert = \left\vert
+  |J| = \left\vert
   \begin{array}{cc}
     1 & 0\\
    0 & \mu e^u\\
   \end{array}\right\vert = \mu e^u
   $$
 
-**Model 2 -> Model 1**
+**Model 2 to Model 1**
 
   $$
   |J| = \left\vert \begin{array}{cc}
-  \dfrac{\partial \theta}{\partial \lambda} & \dfrac{\partial \theta}{\partial u'}\\
-  \dfrac{\partial log(\theta_2'/\mu)}{\partial \lambda} & \dfrac{\partial log(\theta_2'/\mu)}{\partial \theta_2'}\\
-  \end{array}\right\vert = \left\vert \begin{array}{cc}
     1 & 0\\
    0 & (\mu/\theta_2')\mu\\
   \end{array}\right\vert = 1/\theta_2'
@@ -188,11 +179,14 @@ Let $m=\left\{(1,2), (2,1)\right\}$.
 
 **Move from Model 1 to Model 2**
 
+$\alpha_{1,2}(x, x') = \text{min}\{1, A_{1,2}\}$ where
   $$
   A_{1,2} = \dfrac{\pi(2, \theta')}{\pi(1, \theta)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
   $$
 
 **Move from Model 2 to Model 1**
+
+$\alpha_{2,1}(x', x) = \text{min}\{1, A_{2,1}\}$ where
   $$
   A_{2,1} = \dfrac{\pi(1, \theta)}{\pi(2, \theta')} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_2'/\mu)^2}{2\sigma^2} \right\rbrack  \frac{1}{\theta_2'}
   $$
@@ -203,11 +197,16 @@ Let $m=\left\{(1,2), (2,1)\right\}$.
 
 ## Results
 
+  - choose $\mu = 0.015$, $\sigma=1.5$
   - 50,000 iterations with burn-in of 5,000 iterations
   - $p(k=1|\theta, y) = 0.71$, $p(k=2|\theta, y) = 0.29$  
   
 ![density](images/densities.png)
 
+## Comments
+  - Convergence of algorithm is dependent on choice of $\mu$ and $\sigma$
+  - Choice of $g$ and $h$ are not unique. e.g. $u\sim \text{Gamma}$, $h(\theta, u) = (\theta, u)$
+  
 # Challenges for implementation
 
 ## The Challenges Aren't What You Think
