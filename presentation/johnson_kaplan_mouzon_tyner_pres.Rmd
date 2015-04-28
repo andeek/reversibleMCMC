@@ -104,12 +104,12 @@ Consider the model selection problem with $\{\mathcal{M}_k: k = 1,2\}$
   
 Under Model $k = 1$
 
-  - $Y_i | \lambda \sim$ Poisson($\lambda$)
+  - $Y_i | \lambda \sim \text{Poisson}(\lambda)$
   - $\lambda \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$
 
 Under Model $k = 2$
 
-  - $Y_i|\lambda,\kappa \sim$ NegBin($\lambda$, $\kappa$)
+  - $Y_i|\lambda,\kappa \sim \text{NegBin}(\lambda, \kappa)$
   - $\lambda, \kappa \sim \text{Gamma}(\alpha_{\lambda}, \beta_{\lambda}) \times \text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$
 
 Posterior Distribution 
