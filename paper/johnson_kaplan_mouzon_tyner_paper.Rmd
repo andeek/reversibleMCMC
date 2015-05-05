@@ -194,6 +194,8 @@ Product space - work on a more general state space, where the simulation keeps t
 
 # Conclusion
 
+The Reversible jump Markov chain Monte Carlo method of simulation is an extremely powerful one that allows us to solve trans-dimensional problems that the usual frequentist or Bayesian statistical methodologies wouldn't.  Because the framework is so easily generalizable to many problems and applications, it is an extremely useful tool for the applied statistician.  One should, however, be wary of the difficulties of this methodology.  For instance, discovery of the proper determinstic functions, $h$, for transitions between each pair of models is an incredibly cumbersome problem when you have a large number of models to choose from. Even after finding the correct functions and proposals, there is the problem of inefficiency.  Although expected from a complicated methodology such as RJMCMC, the inefficiencies that arise when attempting to solve a problem through the use of RJMCMC can be a barrier that is very hard or nearly impossible to overcome.  We do not, however, wish to undersell the usefulness or impressiveness of the Reversible jump Markov chain Monte Carlo methodology.  It is the best method we have found for solving a diverse array of trans-dimensional problems.  
+
 # Code Appendix
 
 # References
