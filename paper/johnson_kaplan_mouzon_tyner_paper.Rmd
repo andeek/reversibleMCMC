@@ -35,11 +35,15 @@ There are many different scenarios where using RJMCMC can be useful.  In our exa
 
 ## Problem Set Up
 
-As in all MCMC problems, there is a target distribution, which is denoted $\pi(\boldsymbol x)$ below, and an aperiodic and irreducible transition kernel, denoted $P(x,dx')$ below.  With these two things in mind, our chain must satisfy the *detailed balance condition*: 
+As in all MCMC problems, there is a target distribution, which is denoted $\pi(\boldsymbol \theta)$ below, and an aperiodic and irreducible transition kernel, denoted $\alpha(\boldsymbol \theta,d\boldsymbol \theta')$ below.  With these two things in mind, our chain must satisfy the *detailed balance condition*: 
 
-$$\int_{(x, x') \in A \times B} \pi(dx) P(x, dx') = \int_{(x, x') \in A \times B} \pi(dx') P(x', dx)$$
+$$\int_{(\boldsymbol \theta, \boldsymbol \theta') \in A \times B} \pi(dx) \alpha(\boldsymbol \theta, d\boldsymbol \theta') = \int_{(\boldsymbol \theta, \boldsymbol \theta') \in A \times B} \pi(d \boldsymbol \theta') \alpha(\boldsymbol \theta', d\boldsymbol \theta)$$
 
-This is also not unusual for an MCMC sampler, but for the RJMCMC, it becomes more important because we have to get it exactly right in order to correctly move between the possible models in our model space.  
+where $A, B \subset \mathcal{\Theta}$ are all Borel sets in our model spaces.  This is also not unusual for an MCMC sampler, but for the RJMCMC, it becomes more important because we have to get it exactly right in order to correctly move between the possible models in our model space.  
+
+In defining our transition kernel, which will from now on just be denoted as $\alpha$, we need a proposal distribution, $g(\boldsymbol u)$, and a deterministic function, $h(\boldsymbol \theta, \boldsymbol u)$ to take us from one model space to another for each possible model.  $h$ is a bijection from the current model to the next model, and $g$ is a probability distribution from which we generate a random vector, $\boldsymbol u$, that allows us to transition between model spaces via the deterministic function $h$.  
+
+In the outline of the general algorithm given in the next subsection, all possible models come from the set $\mathcal{M}$, where the size of $\mathcal{M}$ is countable, and the $k^{th}$ model in $\mathcal{M}$ is denoted $\mathcal{M_k}$.  The parameter(s) for each model are written as $(k, \boldsymbol \theta_k)$ in order to keep track of the model to which each set of estimated parameter values belongs.
 
 ## A General Algorithm
 
