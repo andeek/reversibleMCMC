@@ -137,26 +137,12 @@ bl <- 15
 ak <- 2
 bk <- 10
 
+# Run MCMC
 ptm <- proc.time()
 test <- rjmcmc_sampler(soccer$TotalGoals, lambda0=2, kappa0=1, k0=1, mu=mu, sigma=sigma, 
                        alphal=alphal, betal=betal, alphak=alphak, betak=betak, al=al, bl=bl, 
                        ak=ak, bk=bk, mc.iter=50000)
-proc.time() - ptm
+time <- proc.time() - ptm
 
-## Burn-in = 5000
-test.s <- test[-c(1:5000),]
 
-testk1 <- subset(test.s, k==1)
-testk2 <- subset(test.s, k==2)
-
-p1<-qplot(data=testk1, x=lambda, geom="density", xlim=c(2.35,2.7), xlab=expression(lambda["k=1"]))
-p2<-qplot(data=testk2, x=lambda, geom="density", xlim=c(2.35,2.75), xlab=expression(lambda["k=2"]))
-p3<-qplot(data=testk2, x=kappa, geom="density", xlim=c(-0.005,0.08), xlab=expression(kappa))
-
-p1 <- nrow(testk1)/nrow(test.s)
-p2 <- nrow(testk2)/nrow(test.s)
-
-qplot(x=1:nrow(testk2), testk2$kappa, geom="line")
-qplot(x=1:nrow(testk2), testk2$lambda, geom="line")
-qplot(x=1:nrow(testk1), testk1$lambda, geom="line")
 
