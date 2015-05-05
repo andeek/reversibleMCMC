@@ -84,46 +84,61 @@ $$
   \end{cases}
 $$
 
+and for simplicity we'll assume $p(k=1)=p(k=2)=0.5$.
+
 ## The reversible jump step
 Within each model ($k=1,2$), the posterior distribution of $\theta_k$ can be simulated using fixed-dimensional MCMC techniques. In fact, under $k=1$ the model is conjugate, and the posterior distribution of $\lambda$ can be easily derived as $\text{Gamma}(\alpha_{\lambda}+\sum_{i} y_i, \beta_{\lambda}+N)$. Under $k=2$ the posterior cannot be derived in closed form, but can be estimated using straighforward Metropolis-Hastings steps, see Appendix (something).
 
 The difficulty in constructing an appropriate MCMC sampler is due to the fact that we need our sampler to be able to jump between models. A jump between models requires the dimension of the state of the chain to change from 1 to 2 parameters, or vice versa. Reversible jump methodology allows us to deal with this transdimensional problem.
 
-To construct the reversible jump sampler, we need to determine the possible moves, or transitions, the sampler can take. A single move of a reversible jump sampler consists of two parts: the forward move from $x = (k,\theta_k)$ to $x'=(k',\theta_{k'}')$ and the reverse move from $x'$ to $x$. Therefore, in this example there are two possible moves: the move from model 1 to 2 and back, and the move from model 2 to 1 and back.
+To construct the sampler, we need to determine the possible moves, or transitions, the sampler can take. A single move of a reversible jump sampler consists of two parts: the forward move from $x = (k,\theta_k)$ to $x'=(k',\theta_{k'}')$ and the reverse move from $x'$ to $x$. Therefore, in this example there are two possible moves: the move from model 1 to 2 and back, and the move from model 2 to 1 and back.
 
 Since the two models are of differing dimensions, need reversible jump to move between models.
 
 ### The move from Model 1 to Model 2
-First consider the move from model 1 to model 2. Denote the current state of the chain by $x = (1,\theta_1)$ and consider the move to state $x' = (2, \theta_2')$, where $\theta_1 = \lambda$ and $\theta_2 = (\theta_{2,1}, \theta_{2,2}) = (\lambda, \kappa)$. As in Green and Hastie @green2009reversible, let $g$ be the $N(0,\sigma^2)$ density for fixed $\sigma$, and generate $u$ from $g$. Then, we'll define the function $h$ such that $\theta_2' = h(\theta_1, u) = (\theta_1, \mu e^u)$ for some fixed $\mu$. In $x'$, the state of the ``new'' parameter $\kappa$ is constructed as $\mu e^u$ (i.e. $\kappa$ is represented by a scaled lognormal random variable $\mu e^u$).
+First consider the move from model 1 to model 2. Denote the current state of the chain by $x = (1,\theta_1)$ and consider the move to state $x' = (2, \theta_2')$, where $\theta_1 = \lambda$ and $\theta_2 = (\theta_{2,1}, \theta_{2,2}) = (\lambda, \kappa)$. As in Green and Hastie @green2009reversible, let $g$ be the $N(0,\sigma^2)$ density for fixed $\sigma$, and generate $u$ from $g$. Then, we'll define the function $h$ such that $\theta_2' = h(\theta_1, u) = (\theta_1, \mu e^u)$ for some fixed $\mu$. In $x'$, the state of the ``new'' parameter $\kappa$ is constructed as $\mu e^u$ (i.e. $\kappa$ is represented by a scaled lognormal random variable $\mu e^u$). Note that the determination of $g$ and $h$ is not unique, and choice of $g$ and $h$ can affect the efficiency of the sampler.
 
-Under the reverse step, we need to determine $u^*$ following density $g^*$ such that $(\theta, u) = h'(\theta_2, u,)$, where $h'$ is the inverse of $h$, and the dimension matching condition holds. Note that $h'(\theta_2') = (\theta_{2,1}', log(\theta_{2,2}'/\mu)) = (\theta_1, log(\mu e^u/\mu)) = (\theta_1, u)$, so in this case the reverse move does not require a new random variable $u^*$. Then, $\text{dim}(x,u) = 2 + 1 = 3$ which equals $\text{dim}(x',u') = 3 + 0 = 3$, and the dimension matching condition holds.
+Under the reverse step, we need to determine $u'$ following density $g'$ (if one is needed) such that $(\theta, u) = h'(\theta_2, u,)$, where $h'$ is the inverse of $h$, and the dimension matching condition holds. Note that $h'(\theta_2') = (\theta_{2,1}', log(\theta_{2,2}'/\mu)) = (\theta_1, log(\mu e^u/\mu)) = (\theta_1, u)$, so in this case the reverse move does not require a new random variable $u'$. Then, $\text{dim}(x,u) = 2 + 1 = 3$ which equals $\text{dim}(x',u') = 3 + 0 = 3$, and the dimension matching condition holds.
 
 ### The move from Model 2 to Model 1
-Since there are only two possible models to jump between, the move from model 2 to model 1 and back is just the ``inverse'' of the move from model 1 to model 2. That is, let $h$ in the forward move be $h'$ from the reverse move above, with no random variable $u$ necessary. Then let $h'$ in the reverse move be $h$ from the forward move above, and let $u^*$ be generated from the $g^*$, the $N(0,\sigma^2)$ density.
+Since there are only two possible models to jump between, the move from model 2 to model 1 and back is just the ``inverse'' of the move from model 1 to model 2. That is, let $h$ in the forward move be $h'$ from the reverse move above, with no random variable $u$ necessary. Then let $h'$ in the reverse move be $h$ from the forward move above, and let $u'$ be generated from $g'$, the $N(0,\sigma^2)$ density.
 
 ## Acceptance probabilities 
 
-Let $m=\left\{(1,2), (2,1)\right\}$ represent the move types from Model 1 to Model 2, and from Model 2 to Model 1, respectively. Then $\alpha_m(x,x') = \text{min}\left\{1, A_m(x, x') \right\}$ where
-  $$
-  A_m(x,x') = \dfrac{\pi(x')j_m(x')g_m'(u')}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial(\theta_{k'}', u')}{\partial (\theta_k, u)}  \right\vert\\
-  = \dfrac{\pi(x')}{\pi(x)g(u)}\left\vert \dfrac{\partial(\theta_{k'}', u')}{\partial (\theta_k, u)}   \right\vert
-  $$
-  
-The acceptance probability for the move from Model 1 to Model 2 is then
-
-$\alpha_{1,2}(x, x') = \text{min}\{1, A_{1,2}\}$ where
+Let $m=\left\{(1,2), (2,1)\right\}$ represent the move types from Model 1 to Model 2, and from Model 2 to Model 1, respectively. The acceptance probability for the move from Model 1 to Model 2 is then $\alpha_{1,2}(x, x') = \text{min}\{1, A_{1,2}\}$ where
   $$
   A_{1,2} = \dfrac{\pi(2, \theta_2')}{\pi(1, \theta_1)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
   $$
 
-and the acceptance probability for the move from Model 2 to Model 1 is
-
-$\alpha_{2,1}(x', x) = \text{min}\{1, A_{2,1}\}$ where
+and the acceptance probability for the move from Model 2 to Model 1 is $\alpha_{2,1}(x', x) = \text{min}\{1, A_{2,1}\}$ where
   $$
   A_{2,1} = \dfrac{\pi(1, \theta_1)}{\pi(2, \theta_2')} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_{2,2}'/\mu)^2}{2\sigma^2} \right\rbrack  \frac{1}{\theta_{2,2}'}
   $$
 
 The derivation of these acceptance probabilities can be found in Appendix (something).
+
+## Implementation of the RJMCMC sampler
+The algorithm for the MCMC sampler incorporating both between-model moves (reversible jump step) and within model moves can be constructed as follows:
+
+1. Determine initial values $k^{(0)}, \lambda^{(0)}, \kappa^{(0)}$. If $k^{(0)}=1$ set $\kappa^{(0)} = \text{NA}$.
+
+2. For $i = 1,\dots,M$
+    a.  If $k^{(i-1)}=1$, attempt a move to model 2. 
+        i. If accept $x'$, set $k^{(i)}=2$, $\kappa^{(i-1)} = \theta_{2,2}' = \mu e^u$.
+            1. Draw $\kappa^{(i)}$ from $\pi(\kappa | \lambda^{(i-1)}, Y)$ using M-H step, see Appendix (something)
+            2. Draw $\lambda^{(i)}$ from $\pi(\lambda | \kappa^{(i)})$ using a M-H step, see Appendix (something)
+        ii. If reject $x'$, set $k^{(i)}=1$, $\kappa^{(i)} = \text{NA}$.
+            1. Draw $\lambda^{(i)}$ from $\text{Gamma}(\alpha_{\lambda} + \sum_i y_i, \beta_{\lambda} + N)$
+    b. If $k^{(i-1)}=2$, attempt a move to model 1. 
+        i. If accept $x'$, set $k^{(i)}=1$, $\kappa^{(i)} = \text{NA}$.
+            1. Draw $\lambda^{(i)}$ from $\text{Gamma}(\alpha_{\lambda} + \sum_i y_i, \beta_{\lambda} + N)$
+        ii. If reject $x'$, set $k^{(i)}=2$, 
+            1. Draw $\kappa^{(i)}$ from $\pi(\kappa | \lambda^{(i-1)}, Y)$ using M-H step, see Appendix (something)
+            2. Draw $\lambda^{(i)}$ from $\pi(\lambda | \kappa^{(i)})$ using a M-H step, see Appendix (something)
+
+We implemented the RJMCMC sampler in \texttt{R}, see code appendix. We followed the choices for known parameters in our sampler after those of Green and Hastie @green2009reversible so we could determine if our sampler ran correctly. The authors note that the choices of parameters $\mu$ and $\sigma$ are crucial, as improperly chosen values can result in non-convergence and inefficiency of the algorithm. We set $\mu=0.015$, $\sigma=1.5$, $\alpha_{\lambda}=25$, $\alpha_{\kappa}=1$, $\beta_{\lambda}=10$, and $\beta_{\kappa}=1$. We ran our sampler for 50,000 iterations and used 5,000 of those iterations for burn-in. The sampler ran quickly, taking 65 seconds on a MacBook Air with a 1.7Ghz processor and 8GB of RAM.
+
+put the results in here 
 
 # Challenges of Implementation
 Implementing reversible algorithms may seem difficult for several reasons.
@@ -222,7 +237,7 @@ Product Space approach [@carlin1995bayesian]
   
 Genetic algorithm for change point problem
 
-Jump diffusion - between model jumps and within model diffusion according to Langevin stochastic differential equation - Had the sampler been corrected for time discretisation by using a Metropolis-€“Hastings accept/reject decision, this would be RJMCMC
+Jump diffusion - between model jumps and within model diffusion according to Langevin stochastic differential equation - Had the sampler been corrected for time discretisation by using a Metropolis-Hastings accept/reject decision, this would be RJMCMC
 
 Marked point - variable number of items are regarded as marked points (component pairs), borrows from birth-and-death simulation idea for finite mixtures. Unlike reversible jump, the birth-death process accepts all across-model moves, but maintains detailed balance through the length of time spent in each model.
 
