@@ -1,6 +1,4 @@
 ############################# Poisson Negative-Binomial Example ################################
-library(ggplot2)
-theme_set(theme_bw(base_family="serif"))
 ### Data ###
 soccer <- read.csv("data/soccer.csv")
 
