@@ -27,7 +27,7 @@ abstract: |
 
 ```{r knitr-opts, echo=FALSE}
 library(knitr)
-opts_chunk$set(echo = FALSE)
+opts_chunk$set(echo = FALSE, size = 'smaller')
 ```
 
 # Introduction
@@ -148,7 +148,7 @@ load(file = "results/rjmcmc_sampler.rda")
 
 We implemented the RJMCMC sampler in \texttt{R} [@r], see code appendix. We followed the choices for known parameters in our sampler after those of Green and Hastie @green2009reversible so we could determine if our sampler ran correctly. The authors note that the choices of parameters $\mu$ and $\sigma$ are crucial, as improperly chosen values can result in non-convergence and inefficiency of the algorithm. We set $\mu=0.015$, $\sigma=1.5$, $\alpha_{\lambda}=25$, $\alpha_{\kappa}=1$, $\beta_{\lambda}=10$, and $\beta_{\kappa}=1$. We ran our sampler for 50,000 iterations and used 5,000 of those iterations for burn-in. The sampler ran quickly, taking `r as.numeric(time)[1]` seconds on a MacBook Air with a 1.7Ghz processor and 8GB of RAM.
 
-```{r results}
+```{r results, eval=FALSE}
 library(ggplot2)
 theme_set(theme_bw(base_family="serif"))
 
@@ -232,9 +232,9 @@ Simulated annealing [@geman1984stochastic] is a method for function optimization
 
 The Reversible jump Markov chain Monte Carlo method of simulation is an extremely powerful one that allows us to solve trans-dimensional problems that the usual frequentist or Bayesian statistical methodologies wouldn't.  Because the framework is so easily generalizable to many problems and applications, it is an extremely useful tool for the applied statistician.  One should, however, be wary of the difficulties of this methodology.  For instance, discovery of the proper determinstic functions, $h$, for transitions between each pair of models is an incredibly cumbersome problem when you have a large number of models to choose from. Even after finding the correct functions and proposals, there is the problem of inefficiency.  Although expected from a complicated methodology such as RJMCMC, the inefficiencies that arise when attempting to solve a problem through the use of RJMCMC can be a barrier that is very hard or nearly impossible to overcome.  We do not, however, wish to undersell the usefulness or impressiveness of the Reversible jump Markov chain Monte Carlo methodology.  It is the best method we have found for solving a diverse array of trans-dimensional problems.  
 
-# Appendix
+\appendix
 
-Model development from section \ref{sec:themodel}:
+#Model development from section \ref{sec:themodel}
 
 $$ \pi(k, \theta_k | \mathbf{y}) \propto \left\{
      \begin{array}{lr}
@@ -283,6 +283,10 @@ p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}) & \propto p(\theta_{2,1}, \theta_
 \end{align*} 	  
   which is also not a known distribution.
 
+# Code
+```r
+`r paste(readLines('../coding/poisson_negbin.R'), collapse = '\n')`
+```
 
 # References
 
