@@ -54,11 +54,22 @@ The following is a general algorithm for implementation of an RJMCMC sampler. If
 (Sam says: I'm gonna try to get this going this week.)
 
 # Challenges of Implementation
-Implementing reversible algorithms may seem difficult for several reasons. First, much of the work being done on the topic is from the perspective of MCMC "experts," and so their writings can be incredibly dense and make for very time-consuming reads.  Additionally, the language required to present these samplers is necessarily complex, which also adds to the difficulty of interpretation.  These issues, however, are not the true cause of difficulty. In the practical sense, implementation is *actually* fairly easy. Only a very few steps require a detailed understanding of the underlying theoretical framework: the rest is fairly straightforward computation. Furthermore, there is little justification needed to guarantee a sampler is able to simulate from a target. So, what are the true challenges of implementing an RJMCMC sampler? 
+Implementing reversible algorithms may seem difficult for several reasons and in fact it is the appearance of difficulty that is one of the 
+First, much of the work being done on the topic is from the perspective of MCMC "experts," and so their writings can be incredibly dense and make for very time-consuming reads.
+Additionally, the language required to present these samplers is necessarily complex, which also adds to the difficulty of interpretation.
+These issues, however, are not the true cause of difficulty.
+In the practical sense, implementation is *actually* fairly easy.
+Only a very few steps require a detailed understanding of the underlying theoretical framework: the rest is fairly straightforward computation.
+Furthermore, there is little justification needed to guarantee a sampler is able to simulate from a target.
+So, what are the true challenges of implementing an RJMCMC sampler? 
 
 ## Efficiency
 
-The main issue is usually not whether a proposal mechanism will work, but whether it will work *effeciently*. Ineffecient chains are very slow to explore the support of the target distribution.  This also means that they will take more time to converge to the target distribution.  The tuning for a specific problem can be arduous, which has lead to work on finding useful general techniques for selecting parts of the mechanism. 
+The main issue is usually not whether a proposal mechanism will work, but whether it will work *effeciently*. 
+Ineffecient chains are very slow to explore the support of the target distribution.  
+This also means that they will take more time to converge to the target distribution.
+The tuning for a specific problem can be arduous, which has lead to work on finding useful general techniques for selecting parts of the mechanism.
+ 
 
 Improving efficiency requires the proposed state $(k', \theta'_{k'})$ and the existitng state $(k, \theta_k)$ have similar state spaces. There are two main classes of methods for ensuring this:
 
