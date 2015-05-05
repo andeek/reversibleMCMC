@@ -164,13 +164,13 @@ When the dimension of the state space is large, it is difficult to imagine any s
 
 Recent work has been focused on accounting for the differences in "within" run and "between" run variability: finding ways account for how much disruption in chain behavior is natural when switching dimensions.  This idea is similar to "within" model and "between" model variability to account for expected departure from modeled behavior.  
 
-# Extensions & Alternatives 
+# Extensions
 
 There are a collection of methods that build off of the RJMCMC ideology by either extending the existing method with other sampling ideas or using the reversible jump within another popular methodology. In this section we briefly discuss three methods, 
 
   1. Adaptive RJMCMC [@hastie2005towards],
   2. Interacting Sequential MC [@jasra2008interacting], and
-  3. Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
+  3. Simulated Annealing extended for trans-dimensionsal problems [@andrieu2000reversible]
 
 The first extension to RJMCMC is to use adaptive sampling ideas within the sampler. This method aims to provide efficiency gains through improving the proposal distribution by using past observations, even rejected ones, to make mid-run adjustments to the proposal. For example, optimal location and scaling of the proposal can be determined during run, eliminating the need for tuning. There are two prominant types of adaptive sampling used currently. The first is *diminishing* adaptive sampling. In diminishing adaptive sampling, there is continuous adaptation, but at a decreasing rate.  The second type is adaptive sampling *through regeneration*.  In this method of adaptive sampling, if regions of the state space exist where incoming chains are likely to be independent of outgoing chains, adapt as chains enter and leave them. 
 
@@ -178,21 +178,7 @@ The idea of using adaptive sampling in the RJMCMC is a very easy modification to
 
 Interacting Sequential Monte Carlo (ISMC) samplers were first introduced by Jasra et al. [-@jasra2008interacting] as an extention to the sequential Monte Carlo. In this method, several sequential Monte Carlo samplers are run in parallel, but on completely separate subspaces of the full parameter space. For each sampler at time $t < T$, particles updated using MCMC moves. These MCMC moves can make use of a reversible jump if the problem is of a trans-dimensional nature for example. Then, at a predetermined time $t^* < T$, the separate samplers are combined into a single sampler moving across all models and allowed to interact in the full space. This method is intended to create more diverse samples from a sequential Monte Carlo framework.
 
-Simulated annealing where an optimal model may need to be determined. I.e., function $f$ quantity to minimize with some penalization terms. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate (specific Boltzmann dsn) invariant dsn. Once equilibrium achieved, temperature is decreased and new phase is started from the state the chain ended in.
-
-## Alternatives to... | for trans-dimensional problems
-
-Jump diffusion [@grenander1994representations]
-Marked point processes [@stephens2000bayesian]
-Product Space approach [@carlin1995bayesian]
-  
-Genetic algorithm for change point problem
-
-Jump diffusion - between model jumps and within model diffusion according to Langevin stochastic differential equation - Had the sampler been corrected for time discretisation by using a Metropolis–Hastings accept/reject decision, this would be RJMCMC
-
-Marked point - variable number of items are regarded as marked points (component pairs), borrows from birth-and-death simulation idea for finite mixtures. Unlike reversible jump, the birth-death process accepts all across-model moves, but maintains detailed balance through the length of time spent in each model.
-
-Product space - work on a more general state space, where the simulation keeps track of all $\theta_k$ instead of the current one, then the state vector is of fixed dimension avoiding trans-dimensional problem
+Simulated annealing [@geman1984stochastic] is a method for function optimization. This algorithm can be extended to a trans-dimensional case where an optimal model may need to be determined [@andrieu2000reversible]. In this case, let $f$ be the quantity we want to minimize, maybe with some penalization terms to mimic AIC or BIC. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate invariant dsn. Specifically, at phase $i$ with temperature $T_i$, the target distribution is the Boltzmann distribution with parameter $T_i$, $b_{T_i}(k, \theta_i) \propto \exp(-f(k, \theta_k)/T_i)$. Once equilibrium achieved in the chain, the temperature is decreased and a new phase is started from the state the chain ended in. This process of sampling a reversible Markov chain until reaching equilibrium with the target distribution and the reducing the temperature continues until $T_i = 0$. This process leaves a chain that approximates a distribution with all of its at the (penalized) minimum of the objective function.
 
 # Conclusion
 
