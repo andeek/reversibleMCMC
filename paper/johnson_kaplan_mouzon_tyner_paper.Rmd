@@ -70,18 +70,12 @@ So, what are the true challenges of implementing an RJMCMC sampler?
 
 ## Efficiency
 
-The main issue is usually not whether a proposal mechanism will work, but whether it will work *effeciently*. 
-The more a sampler rejects moves, 
-the longer it takes for it to successfully explore the target distribution's support
-and as a result the number of samples needed to achieve some given level of convergence.
-As a result, it is possible to have a sampler that will theorhetically behave like
-the target distribution and never have enough time to actually produce valid samples.
-In the case of a specific problem, 
-there are several places in the proposal mechanism that benefit from careful scrutiny 
-and tuning [@green2009reversible, pp. 12], a process that tends to be arduous and
-the final solution may not be widely applicable.
-The attempt to find better ways to handle such issues has lead to work 
-developing useful general techniques for selecting parts of the mechanism with efficiency in mind.
+The main issue is usually not whether a proposal mechanism will work, but whether it will work *effeciently*.
+The more a sampler rejects moves, the longer it takes for it to successfully explore the target distribution's support and as a result the number of samples needed to achieve some given level of convergence.
+As a result, it is possible to have a sampler that will theorhetically behave like the target distribution and never have enough time to actually produce valid samples.
+In the case of a specific problem, there are several places in the proposal mechanism that benefit from careful scrutiny and tuning [@green2009reversible, pp. 12], 
+a process that tends to be arduous and the final solution may not be widely applicable.
+The attempt to find better ways to handle such issues has lead to work developing useful general techniques for selecting parts of the mechanism with efficiency in mind.
  
 Improving efficiency requires the proposed state $(k', \theta'_{k'})$ 
 and the existitng state $(k, \theta_k)$ have similar support. 
@@ -92,36 +86,20 @@ There are two main classes of methods for ensuring this:
 
 ### Order Methods
 
-For a given initial state $\theta_k$ in model $k$ we can find an equivalent 
-state $c_{k,k'}(\theta_k)$ in model $k'$. 
+For a given initial state $\theta_k$ in model $k$ we can find an equivalent state $c_{k,k'}(\theta_k)$ in model $k'$. 
 These equivalent states are referred to as "centering points."  
-If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, 
-then moving from one model ($k$) to another ($k'$) will be encouraged and the 
-state space will be more thoroughly explored.
+If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, then moving from one model ($k$) to another ($k'$) will be encouraged and the state space will be more thoroughly explored.
   
 The *order* of the method determines the type of constraint imposed.  
-For the $0^{th}$-order, $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$, 
-while for the higher-order methods, the first and higher-order derivatives are
-set equal to 0, as in
-$\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$.  
-For the first and higher order methods, the region probability 
-of acceptance near the centers is also high, which
-may go a long way to explaining the gains in efficiency that
-these methods have been shown to have numerically.
+For the $0^{th}$-order, $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$, while for the higher-order methods, the first and higher-order derivatives are set equal to 0, as in $\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$.  
+For the first and higher order methods, the region probability of acceptance near the centers is also high, which may go a long way to explaining the gains in efficiency that these methods have been shown to have numerically.
 
 ### Saturated State Space
 
-For a given state space $\mathcal{X}$, 
-we can create additional "auxiliary" variables so that each model has 
-the same number of parameters as the largest model.
-In this case, the random movement of the sampler converges to a mix of the auxiliary
-variables and the target distribution. 
-The important feature here is the way that the auxiliary variables 
-change the dimension of the models and the wide set of behaviors
-they are permitted.
-Cross-state proposals are essentially rendered deterministic and 
-the underlying theory provides a framework for applications
-to times-series.
+For a given state space $\mathcal{X}$, we can create additional "auxiliary" variables so that each model has the same number of parameters as the largest model.
+In this case, the random movement of the sampler converges to a mix of the auxiliary variables and the target distribution. 
+The important feature here is the way that the auxiliary variables change the dimension of the models and the wide set of behaviors they are permitted.
+Cross-state proposals are essentially rendered deterministic and the underlying theory provides a framework for applications to times-series.
 Using this method, between state changes become more likely, and so the sampler covers the set of possible proposals more quickly.
 
 ### Delayed Rejection
@@ -131,7 +109,11 @@ Finally, there is delayed rejection if proposal $x'$ is rejected, try a backup p
 
 ## Finding Appropriate Diagnostics
 
-The main issue in improving efficiency is in promoting transitions between models, namely transitions between state space dimensions. However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.  *Transitioning* between models is not always the favored choice. Chains may "stabilize" quickly inside a model, so that chain will provide good diagnostics *until* the chain moves to sample from a different model. At that point, the diagnostics become much trickier. 
+The goal of diagnositics in sampling is to provide a clear indicators that a sampling mechanism has satisfied some level convergence.
+For example, examining the autocorrelation between proposals should indicate that the mechanism is sampling from all over the sample space.
+The main issue in improving efficiency is in promoting transitions between models, namely transitions between state space dimensions. 
+However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.  
+*Transitioning* between models is not always the favored choice. Chains may "stabilize" quickly inside a model, so that chain will provide good diagnostics *until* the chain moves to sample from a different model. At that point, the diagnostics become much trickier. 
 
 Recent work has been focused on accounting for the differences in "within" run and "between" run variability: finding ways account for how much disruption in chain behavior is natural when switching dimensions.  This idea is similar to "within" model and "between" model variability to account for expected departure from modeled behavior.  
 
