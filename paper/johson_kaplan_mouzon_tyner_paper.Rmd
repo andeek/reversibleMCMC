@@ -88,15 +88,16 @@ Recent work has been focused on accounting for the differences in "within" run a
 
 # Extensions & Alternatives 
 
-There are a collection of methods that build off of RJMCMC
-Adaptive RJMCMC [@hastie2005towards]
-Interacting Sequential MC [@jasra2008interacting]
-Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
+There are a collection of methods that build off of the RJMCMC ideology by either extending the existing method with other sampling ideas or using the reversible jump within another popular methodology. In this section we briefly discuss three methods, 
+
+  1. Adaptive RJMCMC [@hastie2005towards],
+  2. Interacting Sequential MC [@jasra2008interacting], and
+  3. Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
 
 Efficiency gains - adaptive sampling. 
   Idea: proposal mechanisms may be allowed to depend on past realizations of the chain, not just current state. Optimal location and scaling of proposal can be determined during run, eliminating tuning. Used in the within model step or between model step, as Ian mentioned.
 
-ISMC - Several sequential MC samplers run in parallel, separate subspaces. For each sampler at time $t < T$, particles updated using (reversible) MCMC moves. When a predetermined time $t^* < T$ is reached, the separate samplers are combined into a single sampler moving across all models.
+Interacting Sequential Monte Carlo (ISMC) samplers were first introduced by Jasra et al. [-@jasra2008interacting] as an extention to the sequential Monte Carlo. In this method, several sequential Monte Carlo samplers are run in parallel, but on completely separate subspaces of the full parameter space. For each sampler at time $t < T$, particles updated using MCMC moves. These MCMC moves can make use of a reversible jump if the problem is of a trans-dimensional nature for example. Then, at a predetermined time $t^* < T$, the separate samplers are combined into a single sampler moving across all models and allowed to interact in the full space. This method is intended to create more diverse samples from a sequential Monte Carlo framework.
 
 Simulated annealing where an optimal model may need to be determined. I.e., function $f$ quantity to minimize with some penalization terms. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate (specific Boltzmann dsn) invariant dsn. Once equilibrium achieved, temperature is decreased and new phase is started from the state the chain ended in.
 
