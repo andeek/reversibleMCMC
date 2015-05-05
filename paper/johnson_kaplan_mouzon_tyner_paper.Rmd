@@ -104,8 +104,12 @@ Using this method, between state changes become more likely, and so the sampler 
 
 ### Delayed Rejection
 
-Finally, there is delayed rejection if proposal $x'$ is rejected, try a backup proposal $x''$ instead.  
-
+Finally, there is a technique called delayed rejection.
+Essentially, if proposal $x'$ is rejected, a backup proposal $x''$ is 
+immedeatly proposed, with an acceptance probability that takes into account
+the rejection of the first proposal to maintain the desired stationary distribution. 
+This literally increases the likelihood of acceptance and thus the overall
+efficiency of the sampler.
 
 ## Finding Appropriate Diagnostics
 
