@@ -35,11 +35,15 @@ There are many different scenarios where using RJMCMC can be useful.  In our exa
 
 ## Problem Set Up
 
-As in all MCMC problems, there is a target distribution, which is denoted $\pi(\boldsymbol x)$ below, and an aperiodic and irreducible transition kernel, denoted $P(x,dx')$ below.  With these two things in mind, our chain must satisfy the *detailed balance condition*: 
+As in all MCMC problems, there is a target distribution, which is denoted $\pi(\boldsymbol \theta)$ below, and an aperiodic and irreducible transition kernel, denoted $\alpha(\boldsymbol \theta,d\boldsymbol \theta')$ below.  With these two things in mind, our chain must satisfy the *detailed balance condition*: 
 
-$$\int_{(x, x') \in A \times B} \pi(dx) P(x, dx') = \int_{(x, x') \in A \times B} \pi(dx') P(x', dx)$$
+$$\int_{(\boldsymbol \theta, \boldsymbol \theta') \in A \times B} \pi(dx) \alpha(\boldsymbol \theta, d\boldsymbol \theta') = \int_{(\boldsymbol \theta, \boldsymbol \theta') \in A \times B} \pi(d \boldsymbol \theta') \alpha(\boldsymbol \theta', d\boldsymbol \theta)$$
 
-This is also not unusual for an MCMC sampler, but for the RJMCMC, it becomes more important because we have to get it exactly right in order to correctly move between the possible models in our model space.  
+where $A, B \subset \mathcal{\Theta}$ are all Borel sets in our model spaces.  This is also not unusual for an MCMC sampler, but for the RJMCMC, it becomes more important because we have to get it exactly right in order to correctly move between the possible models in our model space.  
+
+In defining our transition kernel, which will from now on just be denoted as $\alpha$, we need a proposal distribution, $g(\boldsymbol u)$, and a deterministic function, $h(\boldsymbol \theta, \boldsymbol u)$ to take us from one model space to another for each possible model.  $h$ is a bijection from the current model to the next model, and $g$ is a probability distribution from which we generate a random vector, $\boldsymbol u$, that allows us to transition between model spaces via the deterministic function $h$.  
+
+In the outline of the general algorithm given in the next subsection, all possible models come from the set $\mathcal{M}$, where the size of $\mathcal{M}$ is countable, and the $k^{th}$ model in $\mathcal{M}$ is denoted $\mathcal{M_k}$.  The parameter(s) for each model are written as $(k, \boldsymbol \theta_k)$ in order to keep track of the model to which each set of estimated parameter values belongs.
 
 ## A General Algorithm
 
@@ -104,8 +108,12 @@ Using this method, between state changes become more likely, and so the sampler 
 
 ### Delayed Rejection
 
-Finally, there is delayed rejection if proposal $x'$ is rejected, try a backup proposal $x''$ instead.  
-
+Finally, there is a technique called delayed rejection.
+Essentially, if proposal $x'$ is rejected, a backup proposal $x''$ is 
+immedeatly proposed, with an acceptance probability that takes into account
+the rejection of the first proposal to maintain the desired stationary distribution. 
+This literally increases the likelihood of acceptance and thus the overall
+efficiency of the sampler.
 
 ## Finding Appropriate Diagnostics
 
@@ -125,7 +133,9 @@ There are a collection of methods that build off of the RJMCMC ideology by eithe
   2. Interacting Sequential MC [@jasra2008interacting], and
   3. Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
 
-The first extension to RJMCMC is to use adaptive sampling ideas within the sampler. This method aims to provide efficiency gains through improving the proposal distribution by using past observations, even rejected ones, to make mid-run adjustments to the proposal. For example, optimal location and scaling of the proposal can be determined during run, eliminating the need for tuning. There are two prominant types of adaptive sampling used currently. The first is *diminishing* adaptive sampling. In diminishing adaptive sampling, there is continuous adaptation, but at a decreasing rate.  The second type is adaptive sampling *through regeneration*.  In this method of adaptive sampling, if regions of the state space exist where incoming chains are likely to be independent of outgoing chains, adapt as chains enter and leave them. The idea of using adaptive sampling in the RJMCMC is a very easy modification to the within model moves, since these moves are simple Metropolis-Hastings steps. However, once we consider the between model moves in an adaptive sampling architecture, this method is not as clear. Hastie [-@hastie2005towards] suggests adapting the probabilities for moving between models $j_m$ in cases where these do not depend on the number of parameters $k$ or the parameters themselves $\theta_k$ as one possibility.
+The first extension to RJMCMC is to use adaptive sampling ideas within the sampler. This method aims to provide efficiency gains through improving the proposal distribution by using past observations, even rejected ones, to make mid-run adjustments to the proposal. For example, optimal location and scaling of the proposal can be determined during run, eliminating the need for tuning. There are two prominant types of adaptive sampling used currently. The first is *diminishing* adaptive sampling. In diminishing adaptive sampling, there is continuous adaptation, but at a decreasing rate.  The second type is adaptive sampling *through regeneration*.  In this method of adaptive sampling, if regions of the state space exist where incoming chains are likely to be independent of outgoing chains, adapt as chains enter and leave them. 
+
+The idea of using adaptive sampling in the RJMCMC is a very easy modification to the within model moves, since these moves are simple Metropolis-Hastings steps. However, once we consider the between model moves in an adaptive sampling architecture, this method is not as clear. Hastie [-@hastie2005towards] suggests adapting the probabilities for moving between models $j_m$ in cases where these do not depend on the number of parameters $k$ or the parameters themselves $\theta_k$ as one possibility.
 
 Interacting Sequential Monte Carlo (ISMC) samplers were first introduced by Jasra et al. [-@jasra2008interacting] as an extention to the sequential Monte Carlo. In this method, several sequential Monte Carlo samplers are run in parallel, but on completely separate subspaces of the full parameter space. For each sampler at time $t < T$, particles updated using MCMC moves. These MCMC moves can make use of a reversible jump if the problem is of a trans-dimensional nature for example. Then, at a predetermined time $t^* < T$, the separate samplers are combined into a single sampler moving across all models and allowed to interact in the full space. This method is intended to create more diverse samples from a sequential Monte Carlo framework.
 
