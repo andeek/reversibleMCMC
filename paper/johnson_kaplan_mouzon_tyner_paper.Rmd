@@ -75,6 +75,7 @@ The negative binomial can also be parameterized in terms of its mean $\lambda = 
 We consider total goals from 1,140 English Premier soccer league games from the 2005/2006, 2006/2007, and 2007/2008 seasons, as used in Green and Hastie's @green2009reversible example.
 
 ## The Model
+\label{sec:themodel}
 Let $Y_i, i=1,\dots,N$ represent total goals from $N=1,140$ soccer games, and $k=1,2$ represent choice of data distribution. Under $k=1$, let $Y_i \sim \text{Poisson}(\lambda)$ and under $k=2$, let $Y_i \sim \text{NegBin}(\lambda, \kappa)$ such that $\lambda$ is interpretable as the mean across both models. Consider a $\text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$ prior on $\lambda$ under both models, and an independent $\text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$ prior on $\kappa$ under $k=2$. For ease of notation, let $\theta_k$ be the parameter vector under model $k$. Then the posterior distribution can be determined up to a multiplicative constant
 
 $$
@@ -218,7 +219,57 @@ Simulated annealing [@geman1984stochastic] is a method for function optimization
 
 The Reversible jump Markov chain Monte Carlo method of simulation is an extremely powerful one that allows us to solve trans-dimensional problems that the usual frequentist or Bayesian statistical methodologies wouldn't.  Because the framework is so easily generalizable to many problems and applications, it is an extremely useful tool for the applied statistician.  One should, however, be wary of the difficulties of this methodology.  For instance, discovery of the proper determinstic functions, $h$, for transitions between each pair of models is an incredibly cumbersome problem when you have a large number of models to choose from. Even after finding the correct functions and proposals, there is the problem of inefficiency.  Although expected from a complicated methodology such as RJMCMC, the inefficiencies that arise when attempting to solve a problem through the use of RJMCMC can be a barrier that is very hard or nearly impossible to overcome.  We do not, however, wish to undersell the usefulness or impressiveness of the Reversible jump Markov chain Monte Carlo methodology.  It is the best method we have found for solving a diverse array of trans-dimensional problems.  
 
-# Code Appendix
+# Appendix
+
+Model development from section \ref{sec:themodel}:
+
+$$ \pi(k, \theta_k | \mathbf{y}) \propto \left\{
+     \begin{array}{lr}
+       \frac{1}{2} p(\theta_1 | k = 1) L(\mathbf{y}|\theta_1) & : k = 1\\
+       \frac{1}{2} p(\theta_{2,1}, \theta_{2,2} | k = 2) L(\mathbf{y}|\theta_{2,1}, \theta_{2,2}) & : k = 2
+     \end{array}
+   \right. $$
+   
+ Development of the log posterior functions for the two models: 
+ 
+\underline{$k =1:$}
+ \begin{align*}
+ p((1,\theta_1) | \mathbf{y}) & \propto \pi(\theta_1|k=1) L(y|\theta_1) \\
+   & \propto \frac{\beta_\lambda^{\alpha_\lambda}}{\Gamma(\alpha_{\lambda})} \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \frac{\lambda^{y_i}}{y_i !} e^{-\lambda} \\
+ \ell(p((1,\theta_1) | \mathbf{y})) & \propto \log(p) + \log(c_\lambda) + (\alpha-1)\log(\lambda) - \beta_{\lambda} \lambda + \sum_{i=1}^n (y_i \log(\lambda) - \log(y_i!) -\lambda) 
+\end{align*}
+
+\underline{$k = 2:$}
+\begin{align*}
+p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}) & \propto p(\theta_{2,1}, \theta_{2,2} | k = 2) L(\mathbf{y}|\theta_{2,1}, \theta_{2,2})  \\
+	& \propto (1-p) \frac{\beta_\lambda^{\alpha_\lambda}}{\Gamma(\alpha_{\lambda})} \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \frac{\beta_\kappa^{\alpha_\kappa}}{\Gamma(\alpha_{\kappa})} \kappa^{\alpha_\kappa - 1} e^{-\beta_{\kappa} \kappa} \prod_{i=1}^n \frac{\lambda^{y_i}}{y_i !} \frac{\Gamma(1/\kappa + y_i)}{\Gamma(1/\kappa)(1/\kappa + \lambda)^{y_i}} (1+\kappa \lambda)^{-1/\kappa} \\
+\ell(p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}))	 & \propto \log(1-p) + \log(c_\lambda) + (\alpha-1)\log(\lambda) - \beta_{\lambda} \lambda + \log(c_\kappa) + (\alpha-1)\log(\kappa) - \beta_{\kappa} \kappa  \\
+	& + \sum_{i=1}^n (y_i \log(\lambda) - \log(y_i!) + \log(\Gamma(1/\kappa + y_i)) - \log(\Gamma(1/\kappa)) - y_i\log(1/\kappa +\lambda) \\
+	& - 1/\kappa \log(1+\kappa\lambda)) 
+ \end{align*}
+  
+ Note that above, $c_a =  \frac{\beta_a^{\alpha_a}}{\Gamma(\alpha_{a})}$ for $a \in \{\lambda, \kappa \}$. Development of the full conditionals for the two models: 
+
+ \underline{$k =1:$}
+ \begin{align*}
+ \pi(1,\theta_1) | \dots) & \propto \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \lambda^{y_i} e^{-\lambda} \\
+ 	& \propto \lambda^{\alpha + \sum y_i -1} e^{\lambda(-\beta_\lambda + n)} \\
+	\Rightarrow \quad \lambda | \dots, k = 1 & \sim \text{Gamma}(\alpha + \sum y_i, \beta_\lambda +n)
+ \end{align*} 
+ 
+ \underline{$k=2:$}
+ \begin{align*}
+\pi(\lambda| \dots) & \propto \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \lambda^{y_i} \Gamma(1/\kappa + y_i) (1/\kappa + \lambda)^{-y_i} (1+\kappa \lambda)^{-1/\kappa} \\ 
+ & \propto \alpha^{\alpha + \sum y_i -1} e^{\lambda(-\beta_\lambda + n)} (1/\kappa + \lambda)^{-\sum y_i} (1+\kappa \lambda)^{-n/\kappa} \prod_{i=1}^n \Gamma(1/\kappa + y_i) \\
+ &  \propto \alpha^{\alpha + \sum y_i -1} e^{\lambda(-\beta_\lambda + n)} (1/\kappa)^{-\sum y_i} (1+\kappa \lambda)^{-(\sum y_i + n/\kappa)} \prod_{i=1}^n \Gamma(1/\kappa + y_i)  \\
+\end{align*}
+  which is not a known distribution.  In a similar fashion, 
+  
+\begin{align*}
+\pi(\kappa | \dots)& \propto \kappa^{\alpha_\kappa - 1} e^{-\beta_{\kappa} \kappa}  \Gamma(1/\kappa)^(-n)(\kappa)^{\sum y_i} (1+\kappa \lambda)^{-(\sum y_i +n/\kappa)} \prod_{i=1}^n\Gamma(1/\kappa + y_i)\\
+\end{align*} 	  
+  which is also not a known distribution.
+
 
 # References
 
