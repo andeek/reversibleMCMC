@@ -92,18 +92,20 @@ The difficulty in constructing an appropriate MCMC sampler is due to the fact th
 To construct the reversible jump sampler, we need to determine the possible moves, or transitions, the sampler can take. A single move of a reversible jump sampler consists of two parts:  
 
 # Challenges of Implementation
-Implementing reversible algorithms may seem difficult for several reasons and in fact it is the appearance of difficulty that is one of the 
-First, much of the work being done on the topic is from the perspective of MCMC "experts," and so their writings can be incredibly dense and make for very time-consuming reads.
-Additionally, the language required to present these samplers is necessarily complex, which also adds to the difficulty of interpretation.
-These issues, however, are not the true cause of difficulty.
-In the practical sense, implementation is *actually* fairly easy.
-Only a very few steps require a detailed understanding of the underlying theoretical framework: the rest is fairly straightforward computation.
-Furthermore, there is little justification needed to guarantee a sampler is able to simulate from a target.
+Implementing reversible algorithms may seem difficult for several reasons.
+The language required to present RJMCMCs and justify their effectiveness is complex and often there are often subtle points on which the arguments hinge. 
+Additionally, there are several pieces that one might assume must be chosen with great care in order for the mechanism to hold.
+While under ideal circumstances a method would be chosen or ignored for better reasons, the "apparent reluctance to adopt reversible methods" (as Green and Hastie describe it [@green2009reversible, pp. 11,12]) has  
+had an impact on the types of problems to which it is applied, leaving it as the domain of "MCMC 'experts'" [@green2009reversible, p. 11].
+
+Despite this appearence of difficulty, in the practical sense implementation is *actually* fairly easy [@green2009reversible, pp. 11].
+Very few steps require a detailed understanding of the underlying theoretical framework, 
+essentially making the bulk of implementation a straightforward computation.
 So, what are the true challenges of implementing an RJMCMC sampler? 
 
 ## Efficiency
 
-The main issue is usually not whether a proposal mechanism will work, but whether it will work *effeciently*.
+The main issue is usually not whether a proposal mechanism will work, but whether it will work *efficiently*.
 The more a sampler rejects moves, the longer it takes for it to successfully explore the target distribution's support and as a result the number of samples needed to achieve some given level of convergence.
 As a result, it is possible to have a sampler that will theorhetically behave like the target distribution and never have enough time to actually produce valid samples.
 In the case of a specific problem, there are several places in the proposal mechanism that benefit from careful scrutiny and tuning [@green2009reversible, pp. 12], 
