@@ -67,12 +67,20 @@ So, what are the true challenges of implementing an RJMCMC sampler?
 ## Efficiency
 
 The main issue is usually not whether a proposal mechanism will work, but whether it will work *effeciently*. 
-Ineffecient chains are very slow to explore the support of the target distribution.  
-This also means that they will take more time to converge to the target distribution.
-The tuning for a specific problem can be arduous, which has lead to work on finding useful general techniques for selecting parts of the mechanism.
+The more a sampler rejects moves, 
+the longer it takes for it to successfully explore the target distribution's support
+and as a result the number of samples needed to achieve some given level of convergence.
+As a result, it is possible to have a sampler that will theorhetically behave like
+the target distribution and never have enough time to actually produce valid samples.
+In the case of a specific problem, 
+there are several places in the proposal mechanism that benefit from careful scrutiny 
+and tuning [@green2009reversible, pp. 12], a process that tends to be arduous and
+the final solution may not be widely applicable.
+The attempt to find better ways to handle such issues has lead to work 
+developing useful general techniques for selecting parts of the mechanism with efficiency in mind.
  
-
-Improving efficiency requires the proposed state $(k', \theta'_{k'})$ and the existitng state $(k, \theta_k)$ have similar state spaces. There are two main classes of methods for ensuring this:
+Improving efficiency requires the proposed state $(k', \theta'_{k'})$ and the existitng state $(k, \theta_k)$ have similar state spaces. 
+There are two main classes of methods for ensuring this:
 
   1. *Order methods*: parameterizing proposals (our $g(u)$) for a given $h(\theta, u) = (\theta', u')$.
   2. *Saturated state*: augment the state space $\mathcal{X}$ with auxiliary variables
