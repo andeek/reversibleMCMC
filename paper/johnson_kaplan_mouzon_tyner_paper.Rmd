@@ -89,21 +89,57 @@ Within each model ($k=1,2$), the posterior distribution of $\theta_k$ can be sim
 
 The difficulty in constructing an appropriate MCMC sampler is due to the fact that we need our sampler to be able to jump between models. A jump between models requires the dimension of the state of the chain to change from 1 to 2 parameters, or vice versa. Reversible jump methodology allows us to deal with this transdimensional problem.
 
-To construct the reversible jump sampler, we need to determine the possible moves, or transitions, the sampler can take. A single move of a reversible jump sampler consists of two parts:  
+To construct the reversible jump sampler, we need to determine the possible moves, or transitions, the sampler can take. A single move of a reversible jump sampler consists of two parts: the forward move from $x = (k,\theta_k)$ to $x'=(k',\theta_{k'}')$ and the reverse move from $x'$ to $x$. Therefore, in this example there are two possible moves: the move from model 1 to 2 and back, and the move from model 2 to 1 and back.
+
+Since the two models are of differing dimensions, need reversible jump to move between models.
+
+### The move from Model 1 to Model 2
+First consider the move from model 1 to model 2. Denote the current state of the chain by $x = (1,\theta_1)$ and consider the move to state $x' = (2, \theta_2')$, where $\theta_1 = \lambda$ and $\theta_2 = (\theta_{2,1}, \theta_{2,2}) = (\lambda, \kappa)$. As in Green and Hastie @green2009reversible, let $g$ be the $N(0,\sigma^2)$ density for fixed $\sigma$, and generate $u$ from $g$. Then, we'll define the function $h$ such that $\theta_2' = h(\theta_1, u) = (\theta_1, \mu e^u)$ for some fixed $\mu$. In $x'$, the state of the ``new'' parameter $\kappa$ is constructed as $\mu e^u$ (i.e. $\kappa$ is represented by a scaled lognormal random variable $\mu e^u$).
+
+Under the reverse step, we need to determine $u^*$ following density $g^*$ such that $(\theta, u) = h'(\theta_2, u,)$, where $h'$ is the inverse of $h$, and the dimension matching condition holds. Note that $h'(\theta_2') = (\theta_{2,1}', log(\theta_{2,2}'/\mu)) = (\theta_1, log(\mu e^u/\mu)) = (\theta_1, u)$, so in this case the reverse move does not require a new random variable $u^*$. Then, $\text{dim}(x,u) = 2 + 1 = 3$ which equals $\text{dim}(x',u') = 3 + 0 = 3$, and the dimension matching condition holds.
+
+### The move from Model 2 to Model 1
+Since there are only two possible models to jump between, the move from model 2 to model 1 and back is just the ``inverse'' of the move from model 1 to model 2. That is, let $h$ in the forward move be $h'$ from the reverse move above, with no random variable $u$ necessary. Then let $h'$ in the reverse move be $h$ from the forward move above, and let $u^*$ be generated from the $g^*$, the $N(0,\sigma^2)$ density.
+
+## Acceptance probabilities 
+
+Let $m=\left\{(1,2), (2,1)\right\}$ represent the move types from Model 1 to Model 2, and from Model 2 to Model 1, respectively. Then $\alpha_m(x,x') = \text{min}\left\{1, A_m(x, x') \right\}$ where
+  $$
+  A_m(x,x') = \dfrac{\pi(x')j_m(x')g_m'(u')}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial(\theta_{k'}', u')}{\partial (\theta_k, u)}  \right\vert\\
+  = \dfrac{\pi(x')}{\pi(x)g(u)}\left\vert \dfrac{\partial(\theta_{k'}', u')}{\partial (\theta_k, u)}   \right\vert
+  $$
+  
+The acceptance probability for the move from Model 1 to Model 2 is then
+
+$\alpha_{1,2}(x, x') = \text{min}\{1, A_{1,2}\}$ where
+  $$
+  A_{1,2} = \dfrac{\pi(2, \theta_2')}{\pi(1, \theta_1)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
+  $$
+
+and the acceptance probability for the move from Model 2 to Model 1 is
+
+$\alpha_{2,1}(x', x) = \text{min}\{1, A_{2,1}\}$ where
+  $$
+  A_{2,1} = \dfrac{\pi(1, \theta_1)}{\pi(2, \theta_2')} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_{2,2}'/\mu)^2}{2\sigma^2} \right\rbrack  \frac{1}{\theta_{2,2}'}
+  $$
+
+The derivation of these acceptance probabilities can be found in Appendix (something).
 
 # Challenges of Implementation
-Implementing reversible algorithms may seem difficult for several reasons and in fact it is the appearance of difficulty that is one of the 
-First, much of the work being done on the topic is from the perspective of MCMC "experts," and so their writings can be incredibly dense and make for very time-consuming reads.
-Additionally, the language required to present these samplers is necessarily complex, which also adds to the difficulty of interpretation.
-These issues, however, are not the true cause of difficulty.
-In the practical sense, implementation is *actually* fairly easy.
-Only a very few steps require a detailed understanding of the underlying theoretical framework: the rest is fairly straightforward computation.
-Furthermore, there is little justification needed to guarantee a sampler is able to simulate from a target.
+Implementing reversible algorithms may seem difficult for several reasons.
+The language required to present RJMCMCs and justify their effectiveness is complex and often there are often subtle points on which the arguments hinge. 
+Additionally, there are several pieces that one might assume must be chosen with great care in order for the mechanism to hold.
+While under ideal circumstances a method would be chosen or ignored for better reasons, the "apparent reluctance to adopt reversible methods" (as Green and Hastie describe it [@green2009reversible, pp. 11,12]) has  
+had an impact on the types of problems to which it is applied, leaving it as the domain of "MCMC 'experts'" [@green2009reversible, p. 11].
+
+Despite this appearence of difficulty, in the practical sense implementation is *actually* fairly easy [@green2009reversible, pp. 11].
+Very few steps require a detailed understanding of the underlying theoretical framework, 
+essentially making the bulk of implementation a straightforward computation.
 So, what are the true challenges of implementing an RJMCMC sampler? 
 
 ## Efficiency
 
-The main issue is usually not whether a proposal mechanism will work, but whether it will work *effeciently*.
+The main issue is usually not whether a proposal mechanism will work, but whether it will work *efficiently*.
 The more a sampler rejects moves, the longer it takes for it to successfully explore the target distribution's support and as a result the number of samples needed to achieve some given level of convergence.
 As a result, it is possible to have a sampler that will theorhetically behave like the target distribution and never have enough time to actually produce valid samples.
 In the case of a specific problem, there are several places in the proposal mechanism that benefit from careful scrutiny and tuning [@green2009reversible, pp. 12], 
@@ -162,13 +198,13 @@ When the dimension of the state space is large, it is difficult to imagine any s
 
 Recent work has been focused on accounting for the differences in "within" run and "between" run variability: finding ways account for how much disruption in chain behavior is natural when switching dimensions.  This idea is similar to "within" model and "between" model variability to account for expected departure from modeled behavior.  
 
-# Extensions & Alternatives 
+# Extensions
 
 There are a collection of methods that build off of the RJMCMC ideology by either extending the existing method with other sampling ideas or using the reversible jump within another popular methodology. In this section we briefly discuss three methods, 
 
   1. Adaptive RJMCMC [@hastie2005towards],
   2. Interacting Sequential MC [@jasra2008interacting], and
-  3. Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
+  3. Simulated Annealing extended for trans-dimensionsal problems [@andrieu2000reversible]
 
 The first extension to RJMCMC is to use adaptive sampling ideas within the sampler. This method aims to provide efficiency gains through improving the proposal distribution by using past observations, even rejected ones, to make mid-run adjustments to the proposal. For example, optimal location and scaling of the proposal can be determined during run, eliminating the need for tuning. There are two prominant types of adaptive sampling used currently. The first is *diminishing* adaptive sampling. In diminishing adaptive sampling, there is continuous adaptation, but at a decreasing rate.  The second type is adaptive sampling *through regeneration*.  In this method of adaptive sampling, if regions of the state space exist where incoming chains are likely to be independent of outgoing chains, adapt as chains enter and leave them. 
 
@@ -176,21 +212,7 @@ The idea of using adaptive sampling in the RJMCMC is a very easy modification to
 
 Interacting Sequential Monte Carlo (ISMC) samplers were first introduced by Jasra et al. [-@jasra2008interacting] as an extention to the sequential Monte Carlo. In this method, several sequential Monte Carlo samplers are run in parallel, but on completely separate subspaces of the full parameter space. For each sampler at time $t < T$, particles updated using MCMC moves. These MCMC moves can make use of a reversible jump if the problem is of a trans-dimensional nature for example. Then, at a predetermined time $t^* < T$, the separate samplers are combined into a single sampler moving across all models and allowed to interact in the full space. This method is intended to create more diverse samples from a sequential Monte Carlo framework.
 
-Simulated annealing where an optimal model may need to be determined. I.e., function $f$ quantity to minimize with some penalization terms. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate (specific Boltzmann dsn) invariant dsn. Once equilibrium achieved, temperature is decreased and new phase is started from the state the chain ended in.
-
-## Alternatives to... | for trans-dimensional problems
-
-Jump diffusion [@grenander1994representations]
-Marked point processes [@stephens2000bayesian]
-Product Space approach [@carlin1995bayesian]
-  
-Genetic algorithm for change point problem
-
-Jump diffusion - between model jumps and within model diffusion according to Langevin stochastic differential equation - Had the sampler been corrected for time discretisation by using a Metropolis–Hastings accept/reject decision, this would be RJMCMC
-
-Marked point - variable number of items are regarded as marked points (component pairs), borrows from birth-and-death simulation idea for finite mixtures. Unlike reversible jump, the birth-death process accepts all across-model moves, but maintains detailed balance through the length of time spent in each model.
-
-Product space - work on a more general state space, where the simulation keeps track of all $\theta_k$ instead of the current one, then the state vector is of fixed dimension avoiding trans-dimensional problem
+Simulated annealing [@geman1984stochastic] is a method for function optimization. This algorithm can be extended to a trans-dimensional case where an optimal model may need to be determined [@andrieu2000reversible]. In this case, let $f$ be the quantity we want to minimize, maybe with some penalization terms to mimic AIC or BIC. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate invariant dsn. Specifically, at phase $i$ with temperature $T_i$, the target distribution is the Boltzmann distribution with parameter $T_i$, $b_{T_i}(k, \theta_i) \propto \exp(-f(k, \theta_k)/T_i)$. Once equilibrium achieved in the chain, the temperature is decreased and a new phase is started from the state the chain ended in. This process of sampling a reversible Markov chain until reaching equilibrium with the target distribution and the reducing the temperature continues until $T_i = 0$. This process leaves a chain that approximates a distribution with all of its at the (penalized) minimum of the objective function.
 
 # Conclusion
 
