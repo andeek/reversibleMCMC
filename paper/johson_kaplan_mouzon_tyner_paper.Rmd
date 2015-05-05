@@ -31,11 +31,15 @@ Reversible jump Markov Chain Monte Carlo sampling was developed to solve trans-d
 
 # Problem Structure
 
-There are many different scenarios where using RJMCMC can be useful.  In our example modeling soccer goals, we look at a choice between a Poisson model with one mean parameter and a Negative Binomial model with one mean parameter and one overdispersion parameter.  The problem of choosing between two models with one and two parameters each is rather simplistic, and using RJMCMC is not necessary.  The usefulness of RJMCMC sampling is emphasized in problems like the multiple change point problem given in @green1995. In that scenario, the number of change points and the change point locations, as well as the parameters of the various possible change point models are all unknown.
+There are many different scenarios where using RJMCMC can be useful.  In our example modeling soccer goals, we look at a choice between a Poisson model with one mean parameter and a Negative Binomial model with one mean parameter and one overdispersion parameter.  The problem of choosing between two models with one and two parameters each is rather simplistic, and using RJMCMC is not necessary.  The usefulness of RJMCMC sampling is emphasized in problems like the multiple change point problem given in @green1995. In that scenario, the number of change points and the change point locations, as well as the parameters of the various possible change point models, are all unknown.  In problems like that, RJMCMC is extremely useful and powerful, because selection of the number of parameters is done alongside the selection of the parameter values themselves.  
 
 ## Problem Set Up
 
-detailed balance condition
+As in all MCMC problems, there is a target distribution, which is denoted $\pi(\boldsymbol x)$ below, and an aperiodic and irreducible transition kernel, denoted $P(x,dx')$ below.  With these two things in mind, our chain must satisfy the *detailed balance condition*: 
+
+$$\int_{(x, x') \in A \times B} \pi(dx) P(x, dx') = \int_{(x, x') \in A \times B} \pi(dx') P(x', dx)$$
+
+This is also not unusual for an MCMC sampler, but for the RJMCMC, it becomes more important because we have to get it exactly right in order to correctly move between the possible models in our model space.  
 
 ## A General Algorithm
 
