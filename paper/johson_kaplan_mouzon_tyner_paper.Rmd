@@ -22,12 +22,12 @@ bibliography: bibliography.bib
 nocite: | 
   @carlin1995bayesian, @grenander1994representations, @stephens2000bayesian, @hastie2005towards, @jasra2008interacting, @geman1984stochastic, @green2003trans
 abstract: |
-  Reversible jump MCMC is a mechanism designed to solve trans-dimensional problems, where the number of parameters one wishes to estimate, in addition to the parameter values themselves, is also unknown.  RJMCMC has applications in variable selection, Bayesian model selection, multiple change-point problems, and many more.  In this paper, we provide an introduction to RJMCMC, demonstrate its functionality in an example (or two?), discuss the problems that arise most frequently in RJMCMC, and present some extensions of the theory and application of RJMCMC.  
+  Reversible jump Markov chain Monte Carlo (RJMCMC) is a mechanism designed to solve trans-dimensional problems, where the number of parameters one wishes to estimate, in addition to the parameter values themselves, is also unknown. RJMCMC has applications in variable selection, Bayesian model selection, multiple change-point problems, and many more. In this paper, we provide an introduction to RJMCMC, demonstrate its functionality in an example, discuss the problems that arise most frequently in RJMCMC, and present some extensions of the theory and application of RJMCMC.  
 ---
 
 # Introduction
 
-Reversible jump Markov Chain Monte Carlo sampling was developed to solve trans-dimensional problems.  Trans-dimensional problems are those in which "the number of things you don't know is one of the things you don't know" [@green2009reversible].  These problems present great challenges to the usual statistical methods.  With RJMCMC, however, you can jump from one parameter space to another without too much difficulty.  Because it is also reversible, the probability of moving from state A to state B is the same as the probability of moving from state B to state A.  This is important for jumping between parameter spaces because this reversibility is what gives the sampler its ability to explore the model space in its entirety.    
+Reversible jump Markov chain Monte Carlo (RJMCMC) sampling was developed to solve trans-dimensional problems.  Trans-dimensional problems are those in which "the number of things you don't know is one of the things you don't know" [@green2009reversible].  These problems present great challenges to the usual statistical methods.  With RJMCMC, however, you can jump from one parameter space to another without too much difficulty.  Because it is also reversible, the probability of moving from state A to state B is the same as the probability of moving from state B to state A.  This is important for jumping between parameter spaces because this reversibility is what gives the sampler its ability to explore the model space in its entirety.    
 
 # Problem Structure
 
@@ -86,6 +86,32 @@ The main issue in improving efficiency is in promoting transitions between model
 Recent work has been focused on accounting for the differences in "within" run and "between" run variability: finding ways account for how much disruption in chain behavior is natural when switching dimensions.  This idea is similar to "within" model and "between" model variability to account for expected departure from modeled behavior.  
 
 # Extensions & Alternatives 
+
+There are a collection of methods that build off of RJMCMC
+Adaptive RJMCMC [@hastie2005towards]
+Interacting Sequential MC [@jasra2008interacting]
+Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
+
+Efficiency gains - adaptive sampling. 
+  Idea: proposal mechanisms may be allowed to depend on past realizations of the chain, not just current state. Optimal location and scaling of proposal can be determined during run, eliminating tuning. Used in the within model step or between model step, as Ian mentioned.
+
+ISMC - Several sequential MC samplers run in parallel, separate subspaces. For each sampler at time $t < T$, particles updated using (reversible) MCMC moves. When a predetermined time $t^* < T$ is reached, the separate samplers are combined into a single sampler moving across all models.
+
+Simulated annealing where an optimal model may need to be determined. I.e., function $f$ quantity to minimize with some penalization terms. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate (specific Boltzmann dsn) invariant dsn. Once equilibrium achieved, temperature is decreased and new phase is started from the state the chain ended in.
+
+## Alternatives to... | for trans-dimensional problems
+
+Jump diffusion [@grenander1994representations]
+Marked point processes [@stephens2000bayesian]
+Product Space approach [@carlin1995bayesian]
+  
+Genetic algorithm for change point problem
+
+Jump diffusion - between model jumps and within model diffusion according to Langevin stochastic differential equation - Had the sampler been corrected for time discretisation by using a Metropolis–Hastings accept/reject decision, this would be RJMCMC
+
+Marked point - variable number of items are regarded as marked points (component pairs), borrows from birth-and-death simulation idea for finite mixtures. Unlike reversible jump, the birth-death process accepts all across-model moves, but maintains detailed balance through the length of time spent in each model.
+
+Product space - work on a more general state space, where the simulation keeps track of all $\theta_k$ instead of the current one, then the state vector is of fixed dimension avoiding trans-dimensional problem
 
 # Conclusion
 
