@@ -61,7 +61,7 @@ The following is a general algorithm for implementation of an RJMCMC sampler. If
       Where $u^* \sim g'$ [@chen2000monte, pp. 303]
 
 # Example: Soccer Data
-A simple application of reversible jump MCMC methodologies can be used to determine whether count data is better modeled by a Poisson or negative binomial distribution. The latter distribution is a better choice when data are overdispersed relative to the Poisson distribution. We present a detailed explanation and implementation of the problem outlined in Green and Hastie @green2009reversible.
+A simple application of reversible jump MCMC methodologies can be used to determine whether count data is better modeled by a Poisson or negative binomial distribution. The latter distribution is a better choice when data are overdispersed relative to the Poisson distribution. We present a detailed explanation and implementation of the problem outlined in @green2009reversible.
 
 The Poisson distribution is often used to model count data, and assumes the mean and variance of the distribution of the same. It is then often the case that data exhibit overdispersion relative to the Poisson distribution (i.e. the variability in the data is higher than what is expected under the Poisson distribution). In the case of overdispersion, the data may be better modeled by the negative binomial distribution.
 
@@ -72,7 +72,7 @@ Under a negative binomial model with parameters $r > 0$ and $p \in (0,1)$, $$ p(
 The negative binomial can also be parameterized in terms of its mean $\lambda = r \frac{p}{(1-p)}$ and a parameter $\kappa = 1/r$. The variance under this parameterization is $\lambda (1 + \kappa \lambda)$, which gives $\kappa$ the interpretation of representing overdispersion relative to a Poisson distribution with mean and variance $\lambda$.
 
 ## The Data
-We consider total goals from 1,140 English Premier soccer league games from the 2005/2006, 2006/2007, and 2007/2008 seasons, as used in Green and Hastie's @green2009reversible example.
+We consider total goals from 1,140 English Premier soccer league games from the 2005/2006, 2006/2007, and 2007/2008 seasons, as used in Green and Hastie's [-@green2009reversible] example.
 
 ## The Model
 Let $Y_i, i=1,\dots,N$ represent total goals from $N=1,140$ soccer games, and $k=1,2$ represent choice of data distribution. Under $k=1$, let $Y_i \sim \text{Poisson}(\lambda)$ and under $k=2$, let $Y_i \sim \text{NegBin}(\lambda, \kappa)$ such that $\lambda$ is interpretable as the mean across both models. Consider a $\text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$ prior on $\lambda$ under both models, and an independent $\text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$ prior on $\kappa$ under $k=2$. For ease of notation, let $\theta_k$ be the parameter vector under model $k$. Then the posterior distribution can be determined up to a multiplicative constant
@@ -96,7 +96,7 @@ To construct the sampler, we need to determine the possible moves, or transition
 Since the two models are of differing dimensions, need reversible jump to move between models.
 
 ### The move from Model 1 to Model 2
-First consider the move from model 1 to model 2. Denote the current state of the chain by $x = (1,\theta_1)$ and consider the move to state $x' = (2, \theta_2')$, where $\theta_1 = \lambda$ and $\theta_2 = (\theta_{2,1}, \theta_{2,2}) = (\lambda, \kappa)$. As in Green and Hastie @green2009reversible, let $g$ be the $N(0,\sigma^2)$ density for fixed $\sigma$, and generate $u$ from $g$. Then, we'll define the function $h$ such that $\theta_2' = h(\theta_1, u) = (\theta_1, \mu e^u)$ for some fixed $\mu$. In $x'$, the state of the ``new'' parameter $\kappa$ is constructed as $\mu e^u$ (i.e. $\kappa$ is represented by a scaled lognormal random variable $\mu e^u$). Note that the determination of $g$ and $h$ is not unique, and choice of $g$ and $h$ can affect the efficiency of the sampler.
+First consider the move from model 1 to model 2. Denote the current state of the chain by $x = (1,\theta_1)$ and consider the move to state $x' = (2, \theta_2')$, where $\theta_1 = \lambda$ and $\theta_2 = (\theta_{2,1}, \theta_{2,2}) = (\lambda, \kappa)$. As in @green2009reversible, let $g$ be the $N(0,\sigma^2)$ density for fixed $\sigma$, and generate $u$ from $g$. Then, we'll define the function $h$ such that $\theta_2' = h(\theta_1, u) = (\theta_1, \mu e^u)$ for some fixed $\mu$. In $x'$, the state of the ``new'' parameter $\kappa$ is constructed as $\mu e^u$ (i.e. $\kappa$ is represented by a scaled lognormal random variable $\mu e^u$). Note that the determination of $g$ and $h$ is not unique, and choice of $g$ and $h$ can affect the efficiency of the sampler.
 
 Under the reverse step, we need to determine $u'$ following density $g'$ (if one is needed) such that $(\theta, u) = h'(\theta_2, u,)$, where $h'$ is the inverse of $h$, and the dimension matching condition holds. Note that $h'(\theta_2') = (\theta_{2,1}', log(\theta_{2,2}'/\mu)) = (\theta_1, log(\mu e^u/\mu)) = (\theta_1, u)$, so in this case the reverse move does not require a new random variable $u'$. Then, $\text{dim}(x,u) = 2 + 1 = 3$ which equals $\text{dim}(x',u') = 3 + 0 = 3$, and the dimension matching condition holds.
 
@@ -136,7 +136,7 @@ The algorithm for the MCMC sampler incorporating both between-model moves (rever
             1. Draw $\kappa^{(i)}$ from $\pi(\kappa | \lambda^{(i-1)}, Y)$ using M-H step, see Appendix (something)
             2. Draw $\lambda^{(i)}$ from $\pi(\lambda | \kappa^{(i)})$ using a M-H step, see Appendix (something)
 
-We implemented the RJMCMC sampler in \texttt{R}, see code appendix. We followed the choices for known parameters in our sampler after those of Green and Hastie @green2009reversible so we could determine if our sampler ran correctly. The authors note that the choices of parameters $\mu$ and $\sigma$ are crucial, as improperly chosen values can result in non-convergence and inefficiency of the algorithm. We set $\mu=0.015$, $\sigma=1.5$, $\alpha_{\lambda}=25$, $\alpha_{\kappa}=1$, $\beta_{\lambda}=10$, and $\beta_{\kappa}=1$. We ran our sampler for 50,000 iterations and used 5,000 of those iterations for burn-in. The sampler ran quickly, taking 65 seconds on a MacBook Air with a 1.7Ghz processor and 8GB of RAM.
+We implemented the RJMCMC sampler in \texttt{R}, see code appendix. We followed the choices for known parameters in our sampler after those of @green2009reversible so we could determine if our sampler ran correctly. The authors note that the choices of parameters $\mu$ and $\sigma$ are crucial, as improperly chosen values can result in non-convergence and inefficiency of the algorithm. We set $\mu=0.015$, $\sigma=1.5$, $\alpha_{\lambda}=25$, $\alpha_{\kappa}=1$, $\beta_{\lambda}=10$, and $\beta_{\kappa}=1$. We ran our sampler for 50,000 iterations and used 5,000 of those iterations for burn-in. The sampler ran quickly, taking 65 seconds on a MacBook Air with a 1.7Ghz processor and 8GB of RAM.
 
 put the results in here 
 
