@@ -114,13 +114,21 @@ immedeatly proposed, with an acceptance probability that takes into account
 the rejection of the first proposal to maintain the desired stationary distribution. 
 This literally increases the likelihood of acceptance and thus the overall
 efficiency of the sampler.
+This technique has interesting implications to the interplay between the first and second proposal, specifically
+selecting a distribution for which cross model proposals are generated frequently as the first proposal,
+with a proposal that assigns higher weight inside a model as the backup.
+This allows us to attempt to change state space frequently without 
+being stuck on the same initial state for multiple iterations.
 
 ## Finding Appropriate Diagnostics
 
 The goal of diagnositics in sampling is to provide a clear indicators that a sampling mechanism has satisfied some level convergence.
-For example, examining the autocorrelation between proposals should indicate that the mechanism is sampling from all over the sample space.
-The main issue in improving efficiency is in promoting transitions between models, namely transitions between state space dimensions. 
-However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.  
+For example, examining the autocorrelation between proposals can indicate how well mixed the sampler is.
+One of the most well known diagnostic is the Gelman Rubin Multiple Sequence diagnostic, 
+which has clear guidelines (the closer $\hat{R}$ is to 1 the better converged the sample - if $\hat{R} > 1.1$, draw more samples).
+However, the main issue in improving efficiency is in promoting transitions between models,
+namely transitions between state space dimensions. 
+When the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.  
 *Transitioning* between models is not always the favored choice. Chains may "stabilize" quickly inside a model, so that chain will provide good diagnostics *until* the chain moves to sample from a different model. At that point, the diagnostics become much trickier. 
 
 Recent work has been focused on accounting for the differences in "within" run and "between" run variability: finding ways account for how much disruption in chain behavior is natural when switching dimensions.  This idea is similar to "within" model and "between" model variability to account for expected departure from modeled behavior.  
