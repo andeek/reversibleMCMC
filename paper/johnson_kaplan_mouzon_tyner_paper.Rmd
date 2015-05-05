@@ -83,21 +83,46 @@ the final solution may not be widely applicable.
 The attempt to find better ways to handle such issues has lead to work 
 developing useful general techniques for selecting parts of the mechanism with efficiency in mind.
  
-Improving efficiency requires the proposed state $(k', \theta'_{k'})$ and the existitng state $(k, \theta_k)$ have similar state spaces. 
+Improving efficiency requires the proposed state $(k', \theta'_{k'})$ 
+and the existitng state $(k, \theta_k)$ have similar support. 
 There are two main classes of methods for ensuring this:
 
-  1. *Order methods*: parameterizing proposals (our $g(u)$) for a given $h(\theta, u) = (\theta', u')$.
+  1. *Order methods*: parameterizing proposals ($g(u)$) for a given $h(\theta, u) = (\theta', u')$.
   2. *Saturated state*: augment the state space $\mathcal{X}$ with auxiliary variables
 
 ### Order Methods
 
-For a given initial state $\theta_k$ in model $k$ we can find an equivalent state $c_{k,k'}(\theta_k)$ in model $k'$. We call these equivalent states our "centering points."  If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, then moving from one model ($k$) to another ($k'$) will be encouraged and the state space will be more thoroughly explored.
+For a given initial state $\theta_k$ in model $k$ we can find an equivalent 
+state $c_{k,k'}(\theta_k)$ in model $k'$. 
+These equivalent states are referred to as "centering points."  
+If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, 
+then moving from one model ($k$) to another ($k'$) will be encouraged and the 
+state space will be more thoroughly explored.
   
-The *order* of the method determines the type of constraint imposed.  For the $0^{th}$-order, $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$, while for the $k^{th}$-order, $\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$.  
+The *order* of the method determines the type of constraint imposed.  
+For the $0^{th}$-order, $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$, 
+while for the higher-order methods, the first and higher-order derivatives are
+set equal to 0, as in
+$\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$.  
+For the first and higher order methods, the region probability 
+of acceptance near the centers is also high, which
+may go a long way to explaining the gains in efficiency that
+these methods have been shown to have numerically.
 
 ### Saturated State Space
 
-For a given state space $\mathcal{X}$, we can add additional "auxiliary" variables so that each model has the same number of parameters as the largest model. This means that changing between models with different numbers of parameters is equivalent to changing the values of the auxiliary variables.  Using this method, between state changes become more likely, and so the sampler covers the set of possible proposals more quickly.  
+For a given state space $\mathcal{X}$, 
+we can create additional "auxiliary" variables so that each model has 
+the same number of parameters as the largest model.
+In this case, the random movement of the sampler converges to a mix of the auxiliary
+variables and the target distribution. 
+The important feature here is the way that the auxiliary variables 
+change the dimension of the models and the wide set of behaviors
+they are permitted.
+Cross-state proposals are essentially rendered deterministic and 
+the underlying theory provides a framework for applications
+to times-series.
+Using this method, between state changes become more likely, and so the sampler covers the set of possible proposals more quickly.
 
 ### Other Ways to Improve Proposals
 
