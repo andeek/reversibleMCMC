@@ -1,0 +1,154 @@
+---
+title: "Reversible Jump MCMC"
+author:
+- name: Maggie Johnson
+  affiliation: Iowa State University
+  email: majohnso@iastate.edu
+- name: Andee Kaplan
+  affiliation: Iowa State University
+  email: ajkaplan@iastate.edu
+- name: Ian Mouzon
+  affiliation: Iowa State University
+  email: imouzon@iastate.edu
+- name: Sam Tyner
+  affiliation: Iowa State University
+  email: sctyner@iastate.edu
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: yes
+    template: tex/nips_template.tex
+bibliography: bibliography.bib
+nocite: | 
+  @carlin1995bayesian, @grenander1994representations, @stephens2000bayesian, @hastie2005towards, @jasra2008interacting, @geman1984stochastic, @green2003trans
+abstract: |
+  Reversible jump Markov chain Monte Carlo (RJMCMC) is a mechanism designed to solve trans-dimensional problems, where the number of parameters one wishes to estimate, in addition to the parameter values themselves, is also unknown. RJMCMC has applications in variable selection, Bayesian model selection, multiple change-point problems, and many more. In this paper, we provide an introduction to RJMCMC, demonstrate its functionality in an example, discuss the problems that arise most frequently in RJMCMC, and present some extensions of the theory and application of RJMCMC.  
+---
+
+# Introduction
+
+Reversible jump Markov chain Monte Carlo (RJMCMC) sampling was developed to solve trans-dimensional problems.  Trans-dimensional problems are those in which "the number of things you don't know is one of the things you don't know" [@green2009reversible].  These problems present great challenges to the usual statistical methods.  With RJMCMC, however, you can jump from one parameter space to another without too much difficulty.  Because it is also reversible, the probability of moving from state A to state B is the same as the probability of moving from state B to state A.  This is important for jumping between parameter spaces because this reversibility is what gives the sampler its ability to explore the model space in its entirety.    
+
+# Problem Structure
+
+There are many different scenarios where using RJMCMC can be useful.  In our example modeling soccer goals, we look at a choice between a Poisson model with one mean parameter and a Negative Binomial model with one mean parameter and one overdispersion parameter.  The problem of choosing between two models with one and two parameters each is rather simplistic, and using RJMCMC is not necessary.  The usefulness of RJMCMC sampling is emphasized in problems like the multiple change point problem given in @green1995. In that scenario, the number of change points and the change point locations, as well as the parameters of the various possible change point models, are all unknown.  In problems like that, RJMCMC is extremely useful and powerful, because selection of the number of parameters is done alongside the selection of the parameter values themselves.  
+
+## Problem Set Up
+
+As in all MCMC problems, there is a target distribution, which is denoted $\pi(\boldsymbol x)$ below, and an aperiodic and irreducible transition kernel, denoted $P(x,dx')$ below.  With these two things in mind, our chain must satisfy the *detailed balance condition*: 
+
+$$\int_{(x, x') \in A \times B} \pi(dx) P(x, dx') = \int_{(x, x') \in A \times B} \pi(dx') P(x', dx)$$
+
+This is also not unusual for an MCMC sampler, but for the RJMCMC, it becomes more important because we have to get it exactly right in order to correctly move between the possible models in our model space.  
+
+## A General Algorithm
+
+The following is a general algorithm for implementation of an RJMCMC sampler. If the current state of the chain is $(k, \boldsymbol \theta_k)$, then:
+
+  1. Propose a new model $\mathcal{M}_{k^*}$ with probability $j(k^*| k)$.
+  2. Generate $\boldsymbol u$ from a specified proposal density $g(\boldsymbol u)$
+  3. Set $(\boldsymbol \theta_{k^*}^*, \boldsymbol u^*) = h'(\boldsymbol \theta_k, \boldsymbol u)$ where $h'$ is a bijection between $(\boldsymbol \theta_k, \boldsymbol u)$ and $(\boldsymbol \theta^*_{^*}, \boldsymbol u^*)$ where the following must hold: $dim(\boldsymbol \theta_k) + dim(\boldsymbol u) = dim(\boldsymbol \theta^*_{k^*}) + dim(\boldsymbol u^*)$.
+  4. Accept the proposed move to $(k^*, \boldsymbol \theta_{k^*}^*)$ with probability
+  
+      $$
+      \alpha = \min\left\{1, \frac{\pi( \theta_{k^*}^*) j(k^*| k) g'(\boldsymbol u^*)}{\pi(\boldsymbol \theta_k) j(k|k^*) g(\boldsymbol u)} \left|\frac{\partial h'( \theta_{k^*}^*, \boldsymbol u^*)}{\partial (\boldsymbol \theta_k, \boldsymbol u)}\right|\right\}
+      $$
+      
+      Where $u^* \sim g'$ [@chen2000monte, pp. 303]
+
+# Example: Soccer Data
+
+# Challenges of Implementation
+Implementing reversible algorithms may seem difficult for several reasons and in fact it is the appearance of difficulty that is one of the 
+First, much of the work being done on the topic is from the perspective of MCMC "experts," and so their writings can be incredibly dense and make for very time-consuming reads.
+Additionally, the language required to present these samplers is necessarily complex, which also adds to the difficulty of interpretation.
+These issues, however, are not the true cause of difficulty.
+In the practical sense, implementation is *actually* fairly easy.
+Only a very few steps require a detailed understanding of the underlying theoretical framework: the rest is fairly straightforward computation.
+Furthermore, there is little justification needed to guarantee a sampler is able to simulate from a target.
+So, what are the true challenges of implementing an RJMCMC sampler? 
+
+## Efficiency
+
+The main issue is usually not whether a proposal mechanism will work, but whether it will work *effeciently*.
+The more a sampler rejects moves, the longer it takes for it to successfully explore the target distribution's support and as a result the number of samples needed to achieve some given level of convergence.
+As a result, it is possible to have a sampler that will theorhetically behave like the target distribution and never have enough time to actually produce valid samples.
+In the case of a specific problem, there are several places in the proposal mechanism that benefit from careful scrutiny and tuning [@green2009reversible, pp. 12], 
+a process that tends to be arduous and the final solution may not be widely applicable.
+The attempt to find better ways to handle such issues has lead to work developing useful general techniques for selecting parts of the mechanism with efficiency in mind.
+ 
+Improving efficiency requires the proposed state $(k', \theta'_{k'})$ 
+and the existitng state $(k, \theta_k)$ have similar support. 
+There are two main classes of methods for ensuring this:
+
+  1. *Order methods*: parameterizing proposals ($g(u)$) for a given $h(\theta, u) = (\theta', u')$.
+  2. *Saturated state*: augment the state space $\mathcal{X}$ with auxiliary variables
+
+### Order Methods
+
+For a given initial state $\theta_k$ in model $k$ we can find an equivalent state $c_{k,k'}(\theta_k)$ in model $k'$. 
+These equivalent states are referred to as "centering points."  
+If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, then moving from one model ($k$) to another ($k'$) will be encouraged and the state space will be more thoroughly explored.
+  
+The *order* of the method determines the type of constraint imposed.  
+For the $0^{th}$-order, $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$, while for the higher-order methods, the first and higher-order derivatives are set equal to 0, as in $\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$.  
+For the first and higher order methods, the region probability of acceptance near the centers is also high, which may go a long way to explaining the gains in efficiency that these methods have been shown to have numerically.
+
+### Saturated State Space
+
+For a given state space $\mathcal{X}$, we can create additional "auxiliary" variables so that each model has the same number of parameters as the largest model.
+In this case, the random movement of the sampler converges to a mix of the auxiliary variables and the target distribution. 
+The important feature here is the way that the auxiliary variables change the dimension of the models and the wide set of behaviors they are permitted.
+Cross-state proposals are essentially rendered deterministic and the underlying theory provides a framework for applications to times-series.
+Using this method, between state changes become more likely, and so the sampler covers the set of possible proposals more quickly.
+
+### Delayed Rejection
+
+Finally, there is delayed rejection if proposal $x'$ is rejected, try a backup proposal $x''$ instead.  
+
+
+## Finding Appropriate Diagnostics
+
+The goal of diagnositics in sampling is to provide a clear indicators that a sampling mechanism has satisfied some level convergence.
+For example, examining the autocorrelation between proposals should indicate that the mechanism is sampling from all over the sample space.
+The main issue in improving efficiency is in promoting transitions between models, namely transitions between state space dimensions. 
+However, when the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.  
+*Transitioning* between models is not always the favored choice. Chains may "stabilize" quickly inside a model, so that chain will provide good diagnostics *until* the chain moves to sample from a different model. At that point, the diagnostics become much trickier. 
+
+Recent work has been focused on accounting for the differences in "within" run and "between" run variability: finding ways account for how much disruption in chain behavior is natural when switching dimensions.  This idea is similar to "within" model and "between" model variability to account for expected departure from modeled behavior.  
+
+# Extensions & Alternatives 
+
+There are a collection of methods that build off of the RJMCMC ideology by either extending the existing method with other sampling ideas or using the reversible jump within another popular methodology. In this section we briefly discuss three methods, 
+
+  1. Adaptive RJMCMC [@hastie2005towards],
+  2. Interacting Sequential MC [@jasra2008interacting], and
+  3. Simulated Annealing extended for trans-dimensionsal problems [@geman1984stochastic]
+
+The first extension to RJMCMC is to use adaptive sampling ideas within the sampler. This method aims to provide efficiency gains through improving the proposal distribution by using past observations, even rejected ones, to make mid-run adjustments to the proposal. For example, optimal location and scaling of the proposal can be determined during run, eliminating the need for tuning. There are two prominant types of adaptive sampling used currently. The first is *diminishing* adaptive sampling. In diminishing adaptive sampling, there is continuous adaptation, but at a decreasing rate.  The second type is adaptive sampling *through regeneration*.  In this method of adaptive sampling, if regions of the state space exist where incoming chains are likely to be independent of outgoing chains, adapt as chains enter and leave them. The idea of using adaptive sampling in the RJMCMC is a very easy modification to the within model moves, since these moves are simple Metropolis-Hastings steps. However, once we consider the between model moves in an adaptive sampling architecture, this method is not as clear. Hastie [-@hastie2005towards] suggests adapting the probabilities for moving between models $j_m$ in cases where these do not depend on the number of parameters $k$ or the parameters themselves $\theta_k$ as one possibility.
+
+Interacting Sequential Monte Carlo (ISMC) samplers were first introduced by Jasra et al. [-@jasra2008interacting] as an extention to the sequential Monte Carlo. In this method, several sequential Monte Carlo samplers are run in parallel, but on completely separate subspaces of the full parameter space. For each sampler at time $t < T$, particles updated using MCMC moves. These MCMC moves can make use of a reversible jump if the problem is of a trans-dimensional nature for example. Then, at a predetermined time $t^* < T$, the separate samplers are combined into a single sampler moving across all models and allowed to interact in the full space. This method is intended to create more diverse samples from a sequential Monte Carlo framework.
+
+Simulated annealing where an optimal model may need to be determined. I.e., function $f$ quantity to minimize with some penalization terms. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate (specific Boltzmann dsn) invariant dsn. Once equilibrium achieved, temperature is decreased and new phase is started from the state the chain ended in.
+
+## Alternatives to... | for trans-dimensional problems
+
+Jump diffusion [@grenander1994representations]
+Marked point processes [@stephens2000bayesian]
+Product Space approach [@carlin1995bayesian]
+  
+Genetic algorithm for change point problem
+
+Jump diffusion - between model jumps and within model diffusion according to Langevin stochastic differential equation - Had the sampler been corrected for time discretisation by using a Metropolis–Hastings accept/reject decision, this would be RJMCMC
+
+Marked point - variable number of items are regarded as marked points (component pairs), borrows from birth-and-death simulation idea for finite mixtures. Unlike reversible jump, the birth-death process accepts all across-model moves, but maintains detailed balance through the length of time spent in each model.
+
+Product space - work on a more general state space, where the simulation keeps track of all $\theta_k$ instead of the current one, then the state vector is of fixed dimension avoiding trans-dimensional problem
+
+# Conclusion
+
+# Code Appendix
+
+# References
+
+

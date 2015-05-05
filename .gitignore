@@ -15,6 +15,6 @@ vignettes/*.pdf
 # rstudio
 reversibleMCMC.Rproj
 
-
+paper/*.pdf
 #mac
 .DS_store

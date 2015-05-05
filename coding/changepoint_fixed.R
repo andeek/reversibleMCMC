@@ -1,6 +1,7 @@
 #### Libraries ####
 library(ggplot2)
-library(reshape2)
+library(tidyr)
+library(dplyr)
 
 ###### Try with fixed (true) steps ######
 truefunction<-function(x){
@@ -200,17 +201,17 @@ test<-fixed_sampler(x=x, y=y, b=b.init, B=12, f=f.init, N=512,
               sigma=sigma.init, kappa0=kappa0, a0=a0, b0=b0, mc.iter=10000)
 
 test2<-fixed_sampler2(x=x, y=y, b=b.init, B=12, f=f.init, N=512, 
-                    sigma=sigma.init, kappa0=kappa0, a0=a0, b0=b0, mc.iter=10000)
+                    sigma=sigma.init, kappa0=kappa0, a0=a0, b0=b0, mc.iter=50000)
 
 
-qplot(x=1:1001, y=test2$sigma, geom="line")
+qplot(x=1:50001, y=test2$sigma, geom="line")
 
-bs <- test$b[-c(1:5000),]
-bs.m <- melt(bs)
-fs <- test$f[-c(1:5000),]
-fs.m <- melt(fs)
-qplot(data=bs.m, x=value) + facet_wrap(~Var2, ncol=3)
-qplot(data=fs.m, x=value) + facet_wrap(~Var2, ncol=3)
+bs <- test2$b[-c(1:5000),]
+bs.m <- bs %>% data.frame %>% gather()
+fs <- test2$f[-c(1:5000),]
+fs.m <- fs %>% data.frame %>% gather()
+qplot(data=bs.m, x=value) + facet_wrap(~key, ncol=3)
+qplot(data=fs.m, x=value) + facet_wrap(~key, ncol=3)
 
 fhats <- apply(fs, 2, median)
 bhats <- apply(bs, 2, median)
