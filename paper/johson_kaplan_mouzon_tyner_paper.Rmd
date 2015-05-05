@@ -53,6 +53,35 @@ The following is a general algorithm for implementation of an RJMCMC sampler. If
       Where $u^* \sim g'$ [@chen2000monte, pp. 303]
 
 # Example: Soccer Data
+A simple application of reversible jump MCMC methodologies can be used to determine whether count data is better modeled by a Poisson or negative binomial distribution. The latter distribution is a better choice when data are overdispersed relative to the Poisson distribution. We present a detailed explanation and implementation of the problem outlined in Green and Hastie @green2009reversible.
+
+The Poisson distribution is often used to model count data, and assumes the mean and variance of the distribution of the same. It is then often the case that data exhibit overdispersion relative to the Poisson distribution (i.e. the variability in the data is higher than what is expected under the Poisson distribution). In the case of overdispersion, the data may be better modeled by the negative binomial distribution.
+
+Consider a single random variable $Y$ taking values in $\mathbb{Z}_{\geq0}$. Under a Poisson model with $\lambda > 0$, $$ p(Y|\lambda) = \frac{\lambda^Y e^{-\lambda}}{Y!} $$ 
+
+Under a negative binomial model with parameters $r > 0$ and $p \in (0,1)$, $$ p(Y|r,p) = \frac{\Gamma(r + Y)}{y! \Gamma(r)} p^Y (1-p)^r $$ 
+
+The negative binomial can also be parameterized in terms of its mean $\lambda = r \frac{p}{(1-p)}$ and a parameter $\kappa = 1/r$. The variance under this parameterization is $\lambda (1 + \kappa \lambda)$, which gives $\kappa$ the interpretation of representing overdispersion relative to a Poisson distribution with mean and variance $\lambda$.
+
+## The Data
+We consider total goals from 1,140 English Premier soccer league games from the 2005/2006, 2006/2007, and 2007/2008 seasons, as used in Green and Hastie's @green2009reversible example.
+
+## The Model
+Let $Y_i, i=1,\dots,N$ represent total goals from $N=1,140$ soccer games, and $k=1,2$ represent choice of data distribution. Under $k=1$, let $Y_i \sim \text{Poisson}(\lambda)$ and under $k=2$, let $Y_i \sim \text{NegBin}(\lambda, \kappa)$ such that $\lambda$ is interpretable as the mean across both models. Consider a $\text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$ prior on $\lambda$ under both models, and an independent $\text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$ prior on $\kappa$ under $k=2$. For ease of notation, let $\theta_k$ be the parameter vector under model $k$. Then the posterior distribution can be determined up to a multiplicative constant
+
+$$
+  \pi (k, \theta_k | Y) \propto \begin{cases}
+  p(k=1)p(\lambda)\mathcal{L}(Y|\lambda) & \text{for } k=1\\
+  p(k=2)p(\lambda)p(\kappa)\mathcal{L}(Y|\lambda, \kappa) & \text{for } k=2\\
+  \end{cases}
+$$
+
+## The reversible jump step
+Within each model ($k=1,2$), the posterior distribution of $\theta_k$ can be simulated using fixed-dimensional MCMC techniques. In fact, under $k=1$ the model is conjugate, and the posterior distribution of $\lambda$ can be easily derived as $\text{Gamma}(\alpha_{\lambda}+\sum_{i} y_i, \beta_{\lambda}+N)$. Under $k=2$ the posterior cannot be derived in closed form, but can be estimated using straighforward Metropolis-Hastings steps, see Appendix (something).
+
+The difficulty in constructing an appropriate MCMC sampler is due to the fact that we need our sampler to be able to jump between models. A jump between models requires the dimension of the state of the chain to change from 1 to 2 parameters, or vice versa. Reversible jump methodology allows us to deal with this transdimensional problem.
+
+To construct the reversible jump sampler, we need to determine the possible moves, or transitions, the sampler can take. A single move of a reversible jump sampler consists of two parts:  
 
 # Challenges of Implementation
 Implementing reversible algorithms may seem difficult for several reasons. First, much of the work being done on the topic is from the perspective of MCMC "experts," and so their writings can be incredibly dense and make for very time-consuming reads.  Additionally, the language required to present these samplers is necessarily complex, which also adds to the difficulty of interpretation.  These issues, however, are not the true cause of difficulty. In the practical sense, implementation is *actually* fairly easy. Only a very few steps require a detailed understanding of the underlying theoretical framework: the rest is fairly straightforward computation. Furthermore, there is little justification needed to guarantee a sampler is able to simulate from a target. So, what are the true challenges of implementing an RJMCMC sampler? 
