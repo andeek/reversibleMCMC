@@ -324,6 +324,7 @@ Then
 
 #Density and Trace Plots of $\lambda$ and $\kappa$
 \label{app:plots}
+
 ```{r density, warning=FALSE, message=FALSE, fig.height=3, fig.width=10, fig.cap='Density plots for model parameters.'}
 library(ggplot2)
 library(gridExtra)
@@ -335,6 +336,8 @@ p2<-qplot(data=testk2, x=lambda, geom="density", xlim=c(2.35,2.75), xlab=express
 p3<-qplot(data=testk2, x=kappa, geom="density", xlim=c(-0.005,0.08), xlab=expression(kappa))
 grid.arrange(p1,p2,p3,ncol=3)
 ```
+
+
 
 ```{r trace, warning=FALSE, message=FALSE, fig.height=3, fig.width=10, fig.cap='Trace plots to assess convergence after burn-in, with the chain thinned to every 5th state.'}
 # Trace plots, thin to every 5th
