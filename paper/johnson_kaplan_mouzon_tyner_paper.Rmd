@@ -99,9 +99,7 @@ Under the reverse step, we need to determine $u'$ following density $g'$ (if one
 
 **The move from Model 2 to Model 1** Since there are only two possible models to jump between, the move from model 2 to model 1 and back is just the ``inverse'' of the move from model 1 to model 2. That is, let $h$ in the forward move be $h'$ from the reverse move above, with no random variable $u$ necessary. Then let $h'$ in the reverse move be $h$ from the forward move above, and let $u'=\text{log}(\kappa/\mu)$ follow the $N(0,\sigma^2)$ density.
 
-## Acceptance probabilities 
-
-Let $m=\left\{(1,2), (2,1)\right\}$ represent the move types from model 1 to model 2, and from model 2 to model 1, respectively. The acceptance probability for the move from model 1 to model 2 is then $\alpha_{1,2}(x, x') = \text{min}\{1, A_{1,2}\}$ where
+**Acceptance probabilities** Let $m=\left\{(1,2), (2,1)\right\}$ represent the move types from model 1 to model 2, and from model 2 to model 1, respectively. The acceptance probability for the move from model 1 to model 2 is then $\alpha_{1,2}(x, x') = \text{min}\{1, A_{1,2}\}$ where
  $$
  A_{1,2} = \dfrac{\pi(2, \theta_2')}{\pi(1, \theta_1)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
  $$
