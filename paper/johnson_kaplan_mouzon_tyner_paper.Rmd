@@ -1,28 +1,26 @@
 ---
 title: "Reversible Jump MCMC"
 author:
-- name: Maggie Johnson
-  affiliation: Iowa State University
-  email: majohnso@iastate.edu
-- name: Andee Kaplan
-  affiliation: Iowa State University
-  email: ajkaplan@iastate.edu
-- name: Ian Mouzon
-  affiliation: Iowa State University
-  email: imouzon@iastate.edu
-- name: Sam Tyner
-  affiliation: Iowa State University
-  email: sctyner@iastate.edu
+  - name: Maggie Johnson
+    affiliation: Iowa State University
+    email: majohnso@iastate.edu
+  - name: Andee Kaplan
+    affiliation: Iowa State University
+    email: ajkaplan@iastate.edu
+  - name: Ian Mouzon
+    affiliation: Iowa State University
+    email: imouzon@iastate.edu
+  - name: Sam Tyner
+    affiliation: Iowa State University
+    email: sctyner@iastate.edu
 output:
-  pdf_document:
-    fig_caption: yes
-    number_sections: yes
-    template: tex/nips_template.tex
+ pdf_document:
+  fig_caption: yes
+  number_sections: yes
+  template: tex/nips_template.tex
 bibliography: bibliography.bib
-nocite: | 
-  @carlin1995bayesian, @grenander1994representations, @stephens2000bayesian, @hastie2005towards, @jasra2008interacting, @geman1984stochastic, @green2003trans
 abstract: |
-  Reversible jump Markov chain Monte Carlo (RJMCMC) is a mechanism designed to solve trans-dimensional problems, where the number of parameters one wishes to estimate, in addition to the parameter values themselves, is also unknown. RJMCMC has applications in variable selection, Bayesian model selection, multiple change-point problems, and many more. In this paper, we provide an introduction to RJMCMC, demonstrate its functionality in an example, discuss the problems that arise most frequently in RJMCMC, and present some extensions of the theory and application of RJMCMC.  
+ Reversible jump Markov chain Monte Carlo (RJMCMC) is a mechanism designed to solve trans-dimensional problems, where the number of parameters one wishes to estimate, in addition to the parameter values themselves, is also unknown. RJMCMC has applications in variable selection, Bayesian model selection, multiple change-point problems, and many more. In this paper, we provide an introduction to RJMCMC, demonstrate its functionality in an example, discuss the problems that arise most frequently in RJMCMC, and present some extensions of the theory and application of RJMCMC. 
 ---
 
 ```{r knitr-opts, echo=FALSE}
@@ -32,43 +30,42 @@ opts_chunk$set(echo = FALSE, size = 'smaller')
 
 # Introduction
 
-Reversible jump Markov chain Monte Carlo (RJMCMC) sampling was developed to solve trans-dimensional problems.  Trans-dimensional problems are those in which "the number of things you don't know is one of the things you don't know" [@green2009reversible].  These problems present great challenges to the usual statistical methods.  With RJMCMC, however, you can jump from one parameter space to another without too much difficulty.  Because it is also reversible, the probability of moving from state A to state B is the same as the probability of moving from state B to state A.  This is important for jumping between parameter spaces because this reversibility is what gives the sampler its ability to explore the model space in its entirety.    
+Reversible jump Markov chain Monte Carlo (RJMCMC) sampling is a technique developed to sample from probability distributions with complicated sample spaces, specifically those of a trans-dimensional nature. Trans-dimensional problems are those in which "the number of things you don't know is one of the things you don't know" [@green2009reversible]. These problems present great challenges to the usual statistical methods specifically because of the complicated nature of the sample space. RJMCMC is equipped with the ability to jump from one parameter space to another without too much difficulty using a reversible Markov chain. The reversibility of this chain allows the sampler to jump from state A to state B or from state B to state A with no loss in probability flow. This is critical for jumping between parameter spaces because this reversibility allows the sampler its ability to explore the model space in its entirety.  
 
-# Problem Structure
+# Typical Problem Structure
 
-There are many different scenarios where using RJMCMC can be useful.  In our example modeling soccer goals, we look at a choice between a Poisson model with one mean parameter and a Negative Binomial model with one mean parameter and one overdispersion parameter.  The problem of choosing between two models with one and two parameters each is rather simplistic, and using RJMCMC is not necessary.  The usefulness of RJMCMC sampling is emphasized in problems like the multiple change point problem given in @green1995. In that scenario, the number of change points and the change point locations, as well as the parameters of the various possible change point models, are all unknown.  In problems like that, RJMCMC is extremely useful and powerful, because selection of the number of parameters is done alongside the selection of the parameter values themselves.  
+RJMCMC is a useful technique for a myriad of statistical problems. One common use is that of model selection, especially when there are varying dimensions of the parameter vector between the models. This problem is of a trans-dimensional nature because depending on the model selected, the parameter vector will be of different lengths. Another very common used of the RJMCMC is the multiple change point problem, an example of which is given in @green1995. In that scenario, the number of change points and the change point locations, as well as the parameters of the various possible change point models, are all unknown. The nature of this problem makes RJMCMC extremely attractive and powerful, because selection of the number of parameters is done alongside the selection of the parameter values themselves. 
 
 ## Problem Set Up
 
-As in all MCMC problems, there is a target distribution, which is denoted $\pi(\boldsymbol \theta)$ below, and an aperiodic and irreducible transition kernel, denoted $\alpha(\boldsymbol \theta,d\boldsymbol \theta')$ below.  With these two things in mind, our chain must satisfy the *detailed balance condition*: 
+As in all MCMC samplers, RJMCMC is sampling from a target distribution, which we denote $\pi(\boldsymbol \theta)$ , and an aperiodic and irreducible transition kernel, denoted as $\alpha(\boldsymbol \theta, \theta')$. With these two things distributions in hand, our chain must satisfy the *detailed balance condition*, which states 
 
-$$\int_{(\boldsymbol \theta, \boldsymbol \theta') \in A \times B} \pi(dx) \alpha(\boldsymbol \theta, d\boldsymbol \theta') = \int_{(\boldsymbol \theta, \boldsymbol \theta') \in A \times B} \pi(d \boldsymbol \theta') \alpha(\boldsymbol \theta', d\boldsymbol \theta)$$
+$$\int\limits_{(\boldsymbol \theta, \boldsymbol \theta') \in A \times B} \pi(dx) \alpha(\boldsymbol \theta, d\boldsymbol \theta') = \int\limits_{(\boldsymbol \theta, \boldsymbol \theta') \in A \times B} \pi(d \boldsymbol \theta') \alpha(\boldsymbol \theta', d\boldsymbol \theta)$$
 
-where $A, B \subset \mathcal{\Theta}$ are all Borel sets in our model spaces.  This is also not unusual for an MCMC sampler, but for the RJMCMC, it becomes more important because we have to get it exactly right in order to correctly move between the possible models in our model space.  
+where $A, B \subset \Theta$ are all Borel sets in the model space. This is a common property for a Markov chain algorithm to satisfy, and is satisfied by the Metropolis-Hastings algorithm. However, for the RJMCMC it is of primary importance to allow the chain to correctly move between the possible models in our model space and back again. 
 
-In defining our transition kernel, which will from now on just be denoted as $\alpha$, we need a proposal distribution, $g(\boldsymbol u)$, and a deterministic function, $h(\boldsymbol \theta, \boldsymbol u)$ to take us from one model space to another for each possible model.  $h$ is a bijection from the current model to the next model, and $g$ is a probability distribution from which we generate a random vector, $\boldsymbol u$, that allows us to transition between model spaces via the deterministic function $h$.  
-
-In the outline of the general algorithm given in the next subsection, all possible models come from the set $\mathcal{M}$, where the size of $\mathcal{M}$ is countable, and the $k^{th}$ model in $\mathcal{M}$ is denoted $\mathcal{M_k}$.  The parameter(s) for each model are written as $(k, \boldsymbol \theta_k)$ in order to keep track of the model to which each set of estimated parameter values belongs.
+Within this general framework, in order to satisfy the detailed balance condition while retaining the ability to jump between model spaces, the proper acceptance probability must be used. This probability is obtained by considering a transition and its reverse simultaneously. Let $\boldsymbol \theta$ be the current state, $\boldsymbol u$ a random proposal vector generated from a distribution $g(\boldsymbol u)$, and $h(\boldsymbol \theta, \boldsymbol u)$ a deterministic bijection from the current state to the proposed next state. Then the the proposed new state of the chain is determined as $h(\boldsymbol \theta, \boldsymbol u)$ and the reverse move is calculated as the inverse function of $h$ of the proposed state. In the trans-dimensional case the transformations $h$ and its inverse must preserve the dimension of the current state, $\boldsymbol \theta$, and sampled vector, $\boldsymbol u$, across to the proposed state and proposed new sampled vector. This requirement allows for the transformations to be differentiable, and the acceptance probability to be calculated. 
 
 ## A General Algorithm
 
-The following is a general algorithm for implementation of an RJMCMC sampler. If the current state of the chain is $(k, \boldsymbol \theta_k)$, then:
+The following is a general algorithm for implementation of an RJMCMC sampler. Let $\mathcal{M}$ be the set of all possible models, where the size of $\mathcal{M}$ is countable, and the $k^{th}$ model in $\mathcal{M}$ is denoted $\mathcal{M}_k$. The parameter(s) for each model are written as $(k, \boldsymbol \theta_k)$ in order to keep track of the model to which each set of estimated parameter values belongs. If the current state of the chain is $(k, \boldsymbol \theta_k)$, then the algorithm is as follows.
 
-  1. Propose a new model $\mathcal{M}_{k^*}$ with probability $j(k^*| k)$.
-  2. Generate $\boldsymbol u$ from a specified proposal density $g(\boldsymbol u)$
-  3. Set $(\boldsymbol \theta_{k^*}^*, \boldsymbol u^*) = h'(\boldsymbol \theta_k, \boldsymbol u)$ where $h'$ is a bijection between $(\boldsymbol \theta_k, \boldsymbol u)$ and $(\boldsymbol \theta^*_{^*}, \boldsymbol u^*)$ where the following must hold: $dim(\boldsymbol \theta_k) + dim(\boldsymbol u) = dim(\boldsymbol \theta^*_{k^*}) + dim(\boldsymbol u^*)$.
-  4. Accept the proposed move to $(k^*, \boldsymbol \theta_{k^*}^*)$ with probability
-  
-      $$
-      \alpha = \min\left\{1, \frac{\pi( \theta_{k^*}^*) j(k^*| k) g'(\boldsymbol u^*)}{\pi(\boldsymbol \theta_k) j(k|k^*) g(\boldsymbol u)} \left|\frac{\partial h'( \theta_{k^*}^*, \boldsymbol u^*)}{\partial (\boldsymbol \theta_k, \boldsymbol u)}\right|\right\}
-      $$
-      
-      Where $u^* \sim g'$ [@chen2000monte, pp. 303]
+ 1. Propose a new model $\mathcal{M}_{k^*}$ with probability $j(k^*| k)$.
+ 2. Generate $\boldsymbol u$ from a specified proposal density $g(\boldsymbol u)$
+ 3. Set $(\boldsymbol \theta_{k^*}^*, \boldsymbol u^*) = h'(\boldsymbol \theta_k, \boldsymbol u)$ where $h'$ is a bijection between $(\boldsymbol \theta_k, \boldsymbol u)$ and $(\boldsymbol \theta^*_{^*}, \boldsymbol u^*)$ where the following must hold: $dim(\boldsymbol \theta_k) + dim(\boldsymbol u) = dim(\boldsymbol \theta^*_{k^*}) + dim(\boldsymbol u^*)$.
+ 4. Accept the proposed move to $(k^*, \boldsymbol \theta_{k^*}^*)$ with probability
+ 
+   $$
+   \alpha = \min\left\{1, \frac{\pi( \theta_{k^*}^*) j(k^*| k) g'(\boldsymbol u^*)}{\pi(\boldsymbol \theta_k) j(k|k^*) g(\boldsymbol u)} \left|\frac{\partial h'( \theta_{k^*}^*, \boldsymbol u^*)}{\partial (\boldsymbol \theta_k, \boldsymbol u)}\right|\right\}
+   $$
+   
+   Where $u^* \sim g'$ [@chen2000monte, pp. 303]
 
 # Example: Soccer Data
-A simple application of reversible jump MCMC methodologies can be used to determine whether count data is better modeled by a Poisson or negative binomial distribution. The latter distribution is a better choice when data are overdispersed relative to the Poisson distribution. We present a detailed explanation and implementation of the problem outlined in @green2009reversible.
 
-The Poisson distribution is often used to model count data, and assumes the mean and variance of the distribution of the same. It is then often the case that data exhibit overdispersion relative to the Poisson distribution (i.e. the variability in the data is higher than what is expected under the Poisson distribution). In the case of overdispersion, the data may be better modeled by the negative binomial distribution.
+A simple application of RJMCMC methodologies can be used to determine whether count data is better modeled by a Poisson or negative binomial distribution. This is a simple model selection problem. We present a detailed explanation and implementation of the problem outlined in @green2009reversible.
+
+The Poisson distribution is often used to model count data, and assumes the mean and variance of the distribution are equal. It is then often the case that data exhibit overdispersion relative to the Poisson distribution (i.e. the variability in the data is higher than what is expected under the Poisson distribution). In the case of overdispersion, the data may be better modeled by the negative binomial distribution.
 
 Consider a single random variable $Y$ taking values in $\mathbb{Z}_{\geq0}$. Under a Poisson model with $\lambda > 0$, $$ p(Y|\lambda) = \frac{\lambda^Y e^{-\lambda}}{Y!} $$ 
 
@@ -76,77 +73,73 @@ Under a negative binomial model with parameters $r > 0$ and $p \in (0,1)$, $$ p(
 
 The negative binomial can also be parameterized in terms of its mean $\lambda = r \frac{p}{(1-p)}$ and a parameter $\kappa = 1/r$. The variance under this parameterization is $\lambda (1 + \kappa \lambda)$, which gives $\kappa$ the interpretation of representing overdispersion relative to a Poisson distribution with mean and variance $\lambda$.
 
-## The Data
-We consider total goals from 1,140 English Premier soccer league games from the 2005/2006, 2006/2007, and 2007/2008 seasons, as used in Green and Hastie's [-@green2009reversible] example.
-
 ## The Model
 \label{sec:themodel}
-Let $Y_i, i=1,\dots,N$ represent total goals from $N=1,140$ soccer games, and $k=1,2$ represent choice of data distribution. Under $k=1$, let $Y_i \sim \text{Poisson}(\lambda)$ and under $k=2$, let $Y_i \sim \text{NegBin}(\lambda, \kappa)$ such that $\lambda$ is interpretable as the mean across both models. Consider a $\text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$ prior on $\lambda$ under both models, and an independent $\text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$ prior on $\kappa$ under $k=2$. For ease of notation, let $\theta_k$ be the parameter vector under model $k$. Then the posterior distribution can be determined up to a multiplicative constant
+We consider total goals from 1,140 English Premier soccer league games from the 2005/2006, 2006/2007, and 2007/2008 seasons, as used in Green and Hastie's [-@green2009reversible] example. Let $Y_i, i=1,\dots,N$ represent total goals from $N=1,140$ soccer games, and $k=1,2$ represent choice of data distribution. Under $k=1$, let $Y_i \sim \text{Poisson}(\lambda)$ and under $k=2$, let $Y_i \sim \text{NegBin}(\lambda, \kappa)$ such that $\lambda$ is interpretable as the mean across both models. Consider a $\text{Gamma}(\alpha_{\lambda}, \beta_{\lambda})$ prior on $\lambda$ under both models, and an independent $\text{Gamma}(\alpha_{\kappa}, \beta_{\kappa})$ prior on $\kappa$ under $k=2$. For ease of notation, let $\theta_k$ be the parameter vector under model $k$. Then the posterior distribution can be determined up to a multiplicative constant
 
 $$
-  \pi (k, \theta_k | Y) \propto \begin{cases}
-  p(k=1)p(\lambda)\mathcal{L}(Y|\lambda) & \text{for } k=1\\
-  p(k=2)p(\lambda)p(\kappa)\mathcal{L}(Y|\lambda, \kappa) & \text{for } k=2\\
-  \end{cases}
+ \pi (k, \theta_k | Y) \propto \begin{cases}
+ p(k=1)p(\lambda)\mathcal{L}(Y|\lambda) & \text{for } k=1\\
+ p(k=2)p(\lambda)p(\kappa)\mathcal{L}(Y|\lambda, \kappa) & \text{for } k=2\\
+ \end{cases}
 $$
 
 and for simplicity we'll assume $p(k=1)=p(k=2)=0.5$.
 
 ## The reversible jump step
-Within each model ($k=1,2$), the posterior distribution of $\theta_k$ can be simulated using fixed-dimensional MCMC techniques. In fact, under $k=1$ the model is conjugate, and the posterior distribution of $\lambda$ can be easily derived as $\text{Gamma}(\alpha_{\lambda}+\sum_{i} y_i, \beta_{\lambda}+N)$. Under $k=2$ the posterior cannot be derived in closed form, but can be estimated using straighforward Metropolis-Hastings steps, see Appendix (something).
+Within each model ($k=1,2$), the posterior distribution of $\theta_k$ can be simulated using fixed-dimensional MCMC techniques. In fact, under $k=1$ the model is conjugate, and the posterior distribution of $\lambda$ can be easily derived as $\text{Gamma}(\alpha_{\lambda}+\sum_{i} y_i, \beta_{\lambda}+N)$. Under $k=2$ the posterior cannot be derived in closed form, but can be estimated using straighforward Metropolis-Hastings steps, see Appendix \ref{app:MH}.
 
 The difficulty in constructing an appropriate MCMC sampler is due to the fact that we need our sampler to be able to jump between models. A jump between models requires the dimension of the state of the chain to change from 1 to 2 parameters, or vice versa. Reversible jump methodology allows us to deal with this transdimensional problem.
 
 To construct the sampler, we need to determine the possible moves, or transitions, the sampler can take. A single move of a reversible jump sampler consists of two parts: the forward move from $x = (k,\theta_k)$ to $x'=(k',\theta_{k'}')$ and the reverse move from $x'$ to $x$. Therefore, in this example there are two possible moves: the move from model 1 to 2 and back, and the move from model 2 to 1 and back.
 
-Since the two models are of differing dimensions, need reversible jump to move between models.
+Since the two models are of differing dimensions, reversible jump is necessary to move between the models.
 
-### The move from Model 1 to Model 2
-First consider the move from model 1 to model 2. Denote the current state of the chain by $x = (1,\theta_1)$ and consider the move to state $x' = (2, \theta_2')$, where $\theta_1 = \lambda$ and $\theta_2 = (\theta_{2,1}, \theta_{2,2}) = (\lambda, \kappa)$. As in @green2009reversible, let $g$ be the $N(0,\sigma^2)$ density for fixed $\sigma$, and generate $u$ from $g$. Then, we'll define the function $h$ such that $\theta_2' = h(\theta_1, u) = (\theta_1, \mu e^u)$ for some fixed $\mu$. In $x'$, the state of the ``new'' parameter $\kappa$ is constructed as $\mu e^u$ (i.e. $\kappa$ is represented by a scaled lognormal random variable $\mu e^u$). Note that the determination of $g$ and $h$ is not unique, and choice of $g$ and $h$ can affect the efficiency of the sampler.
+**The move from Model 1 to Model 2** First consider the move from model 1 to model 2. Denote the current state of the chain by $x = (1,\theta_1)$ and consider the move to state $x' = (2, \theta_2')$, where $\theta_1 = \lambda$ and $\theta_2 = (\theta_{2,1}, \theta_{2,2}) = (\lambda, \kappa)$. As in @green2009reversible, let $g$ be the $N(0,\sigma^2)$ density for fixed $\sigma$, and generate $u$ from $g$. Then, we'll define the function $h$ such that $\theta_2' = h(\theta_1, u) = (\theta_1, \mu e^u)$ for some fixed $\mu$. In $x'$, the state of the ``new'' parameter $\kappa$ is constructed as $\mu e^u$ (i.e. $\kappa$ is represented by a scaled lognormal random variable $\mu e^u$). Note that the determination of $g$ and $h$ is not unique, and choice of $g$ and $h$ can affect the efficiency of the sampler.
 
 Under the reverse step, we need to determine $u'$ following density $g'$ (if one is needed) such that $(\theta, u) = h'(\theta_2, u,)$, where $h'$ is the inverse of $h$, and the dimension matching condition holds. Note that $h'(\theta_2') = (\theta_{2,1}', log(\theta_{2,2}'/\mu)) = (\theta_1, log(\mu e^u/\mu)) = (\theta_1, u)$, so in this case the reverse move does not require a new random variable $u'$. Then, $\text{dim}(x,u) = 2 + 1 = 3$ which equals $\text{dim}(x',u') = 3 + 0 = 3$, and the dimension matching condition holds.
 
-### The move from Model 2 to Model 1
-Since there are only two possible models to jump between, the move from model 2 to model 1 and back is just the ``inverse'' of the move from model 1 to model 2. That is, let $h$ in the forward move be $h'$ from the reverse move above, with no random variable $u$ necessary. Then let $h'$ in the reverse move be $h$ from the forward move above, and let $u'$ be generated from $g'$, the $N(0,\sigma^2)$ density.
+**The move from Model 2 to Model 1** Since there are only two possible models to jump between, the move from model 2 to model 1 and back is just the ``inverse'' of the move from model 1 to model 2. That is, let $h$ in the forward move be $h'$ from the reverse move above, with no random variable $u$ necessary. Then let $h'$ in the reverse move be $h$ from the forward move above, and let $u'$ be generated from $g'$, the $N(0,\sigma^2)$ density.
 
 ## Acceptance probabilities 
 
 Let $m=\left\{(1,2), (2,1)\right\}$ represent the move types from Model 1 to Model 2, and from Model 2 to Model 1, respectively. The acceptance probability for the move from Model 1 to Model 2 is then $\alpha_{1,2}(x, x') = \text{min}\{1, A_{1,2}\}$ where
-  $$
-  A_{1,2} = \dfrac{\pi(2, \theta_2')}{\pi(1, \theta_1)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
-  $$
+ $$
+ A_{1,2} = \dfrac{\pi(2, \theta_2')}{\pi(1, \theta_1)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
+ $$
 
 and the acceptance probability for the move from Model 2 to Model 1 is $\alpha_{2,1}(x', x) = \text{min}\{1, A_{2,1}\}$ where
-  $$
-  A_{2,1} = \dfrac{\pi(1, \theta_1)}{\pi(2, \theta_2')} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_{2,2}'/\mu)^2}{2\sigma^2} \right\rbrack  \frac{1}{\theta_{2,2}'}
-  $$
+ $$
+ A_{2,1} = \dfrac{\pi(1, \theta_1)}{\pi(2, \theta_2')} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_{2,2}'/\mu)^2}{2\sigma^2} \right\rbrack \frac{1}{\theta_{2,2}'}
+ $$
 
-The derivation of these acceptance probabilities can be found in Appendix (something).
+The derivation of these acceptance probabilities can be found in Appendix \ref{app:derive}.
 
 ## Implementation of the RJMCMC sampler
-The algorithm for the MCMC sampler incorporating both between-model moves (reversible jump step) and within model moves can be constructed as follows:
+
+The algorithm for the MCMC sampler incorporating both between-model moves (reversible jump step) and within model moves can be constructed as follows.
 
 1. Determine initial values $k^{(0)}, \lambda^{(0)}, \kappa^{(0)}$. If $k^{(0)}=1$ set $\kappa^{(0)} = \text{NA}$.
 
 2. For $i = 1,\dots,M$
-    a.  If $k^{(i-1)}=1$, attempt a move to model 2. 
-        i. If accept $x'$, set $k^{(i)}=2$, $\kappa^{(i-1)} = \theta_{2,2}' = \mu e^u$.
-            1. Draw $\kappa^{(i)}$ from $\pi(\kappa | \lambda^{(i-1)}, Y)$ using M-H step, see Appendix (something)
-            2. Draw $\lambda^{(i)}$ from $\pi(\lambda | \kappa^{(i)})$ using a M-H step, see Appendix (something)
-        ii. If reject $x'$, set $k^{(i)}=1$, $\kappa^{(i)} = \text{NA}$.
-            1. Draw $\lambda^{(i)}$ from $\text{Gamma}(\alpha_{\lambda} + \sum_i y_i, \beta_{\lambda} + N)$
-    b. If $k^{(i-1)}=2$, attempt a move to model 1. 
-        i. If accept $x'$, set $k^{(i)}=1$, $\kappa^{(i)} = \text{NA}$.
-            1. Draw $\lambda^{(i)}$ from $\text{Gamma}(\alpha_{\lambda} + \sum_i y_i, \beta_{\lambda} + N)$
-        ii. If reject $x'$, set $k^{(i)}=2$, 
-            1. Draw $\kappa^{(i)}$ from $\pi(\kappa | \lambda^{(i-1)}, Y)$ using M-H step, see Appendix (something)
-            2. Draw $\lambda^{(i)}$ from $\pi(\lambda | \kappa^{(i)})$ using a M-H step, see Appendix (something)
+  a. If $k^{(i-1)}=1$, attempt a move to model 2. 
+    i. If accept $x'$, set $k^{(i)}=2$, $\kappa^{(i-1)} = \theta_{2,2}' = \mu e^u$.
+      1. Draw $\kappa^{(i)}$ from $\pi(\kappa | \lambda^{(i-1)}, Y)$ using M-H step, see Appendix \ref{app:MH}
+      2. Draw $\lambda^{(i)}$ from $\pi(\lambda | \kappa^{(i)})$ using a M-H step, see Appendix \ref{app:MH}
+    ii. If reject $x'$, set $k^{(i)}=1$, $\kappa^{(i)} = \text{NA}$.
+      1. Draw $\lambda^{(i)}$ from $\text{Gamma}(\alpha_{\lambda} + \sum_i y_i, \beta_{\lambda} + N)$
+  b. If $k^{(i-1)}=2$, attempt a move to model 1. 
+    i. If accept $x'$, set $k^{(i)}=1$, $\kappa^{(i)} = \text{NA}$.
+      1. Draw $\lambda^{(i)}$ from $\text{Gamma}(\alpha_{\lambda} + \sum_i y_i, \beta_{\lambda} + N)$
+    ii. If reject $x'$, set $k^{(i)}=2$, 
+      1. Draw $\kappa^{(i)}$ from $\pi(\kappa | \lambda^{(i-1)}, Y)$ using M-H step, see Appendix \ref{app:MH}
+      2. Draw $\lambda^{(i)}$ from $\pi(\lambda | \kappa^{(i)})$ using a M-H step, see Appendix \ref{app:MH}
 
 ```{r data}
 load(file = "results/rjmcmc_sampler.rda")
 ```
 
-We implemented the RJMCMC sampler in \texttt{R} [@r], see code appendix. We followed the choices for known parameters in our sampler after those of Green and Hastie @green2009reversible so we could determine if our sampler ran correctly. The authors note that the choices of parameters $\mu$ and $\sigma$ are crucial, as improperly chosen values can result in non-convergence and inefficiency of the algorithm. We set $\mu=0.015$, $\sigma=1.5$, $\alpha_{\lambda}=25$, $\alpha_{\kappa}=1$, $\beta_{\lambda}=10$, and $\beta_{\kappa}=1$. We ran our sampler for 50,000 iterations and used 5,000 of those iterations for burn-in. The sampler ran quickly, taking `r as.numeric(time)[1]` seconds on a MacBook Air with a 1.7Ghz processor and 8GB of RAM.
+We implemented this RJMCMC sampler in \texttt{R} [@r], see Appendix \ref{app:code} for the code. We mirrored the choices for known parameters in our sampler after those of @green2009reversible so we could determine if our sampler ran correctly. The authors note that the choices of parameters $\mu$ and $\sigma$ are crucial, as improperly chosen values can result in non-convergence and inefficiency of the algorithm. We set $\mu=0.015$, $\sigma=1.5$, $\alpha_{\lambda}=25$, $\alpha_{\kappa}=1$, $\beta_{\lambda}=10$, and $\beta_{\kappa}=1$. We ran our sampler for 50,000 iterations and used 5,000 of those iterations for burn-in. The sampler ran quickly, taking `r as.numeric(time)[1]` seconds on a MacBook Air with a 1.7Ghz processor and 8GB of RAM.
 
 ```{r results, eval=FALSE}
 library(ggplot2)
@@ -170,98 +163,84 @@ qplot(x=1:nrow(testk2), testk2$lambda, geom="line")
 qplot(x=1:nrow(testk1), testk1$lambda, geom="line")
 ```
 
-# Challenges of Implementation
-Implementing reversible algorithms may seem difficult for several reasons. The language required to present RJMCMCs and justify their effectiveness is complex and often there are often subtle points on which the arguments hinge. Additionally, there are several pieces that one might assume must be chosen with great care in order for the mechanism to hold. While under ideal circumstances a method would be chosen or ignored for better reasons, the "apparent reluctance to adopt reversible methods" (as Green and Hastie describe it [@green2009reversible, pp. 11,12]) has had an impact on the types of problems to which it is applied, leaving it as the domain of "MCMC 'experts'" [@green2009reversible, p. 11].
+TODO: Add results.
 
-Despite this appearence of difficulty, in the practical sense implementation is *actually* fairly easy [@green2009reversible, pp. 11]. Very few steps require a detailed understanding of the underlying theoretical framework,  essentially making the bulk of implementation a straightforward computation. So, what are the true challenges of implementing an RJMCMC sampler? 
+# Challenges of Implementation
+Implementing reversible algorithms may seem difficult for several reasons. The language required to present RJMCMCs and justify their effectiveness is complex and there are often subtle points on which the arguments hinge. Additionally, there are several pieces that one might assume must be chosen with great care in order for the mechanism to hold. While under ideal circumstances a method would be chosen or ignored for better reasons, the "apparent reluctance to adopt reversible methods" (as Green and Hastie describe it [-@green2009reversible, pp. 11,12]) has had an impact on the types of problems to which it is applied, leaving it to "MCMC 'experts'" [@green2009reversible, p. 11].
+
+Despite this appearence of difficulty, in the practical sense implementation is actually fairly easy [@green2009reversible, pp. 11]. Very few steps require a detailed understanding of the underlying theoretical framework, essentially making the bulk of implementation a straightforward computation. So, what are the true challenges of implementing an RJMCMC sampler? 
 
 ## Efficiency
 
-The main issue is usually not whether a proposal mechanism will work, but whether it will work *efficiently*. The more a sampler rejects moves, the longer it takes for it to successfully explore the target distribution's support and as a result the number of samples needed to achieve some given level of convergence. As a result, it is possible to have a sampler that will theorhetically behave like the target distribution and never have enough time to actually produce valid samples. In the case of a specific problem, there are several places in the proposal mechanism that benefit from careful scrutiny and tuning [@green2009reversible, pp. 12], a process that tends to be arduous and the final solution may not be widely applicable. The attempt to find better ways to handle such issues has lead to work developing useful general techniques for selecting parts of the mechanism with efficiency in mind.
+The main issue is usually not whether a proposal mechanism will work, but whether it will work efficiently. The more a sampler rejects moves, the longer it takes for it to successfully explore the target distribution's support and as a result the number of samples needed to achieve some given level of convergence grows. It is thus possible to have a sampler that will theoretically behave like the target distribution and never have enough time to actually produce valid samples. In the case of a specific problem, there are several places in the proposal mechanism that benefit from careful scrutiny and tuning [@green2009reversible, pp. 12], a process that tends to be arduous and the final solution may not be widely applicable. The attempt to find better ways to handle such issues has lead to work developing useful general techniques for selecting parts of the mechanism with efficiency in mind.
  
-Improving efficiency requires the proposed state $(k', \theta'_{k'})$  and the existitng state $(k, \theta_k)$ have similar support. There are two main classes of methods for ensuring this:
+Improving efficiency requires the proposed state $(k', \theta'_{k'})$ and the existitng state $(k, \theta_k)$ have similar support. There are two main classes of methods for ensuring this, *order methods* and *saturated state methods*. Order methods parameterize proposals ($g(u)$) for a given $h(\theta, u) = (\theta', u')$, while saturated state methods augment the state space $\mathcal{X}$ with auxiliary variables.
 
-  1. *Order methods*: parameterizing proposals ($g(u)$) for a given $h(\theta, u) = (\theta', u')$.
-  2. *Saturated state*: augment the state space $\mathcal{X}$ with auxiliary variables
+**Order Methods** For a given initial state $\theta_k$ in model $k$ we can find an equivalent state $c_{k,k'}(\theta_k)$ in model $k'$. These equivalent states are referred to as "centering points." If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, then moving from one model ($k$) to another ($k'$) will be encouraged and the state space will be more thoroughly explored.
+ 
+The order of the method determines the type of constraint imposed. For the $0^{th}$-order, $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$, while for the higher-order methods, the first and higher-order derivatives are set equal to 0, as in $\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$. For the first and higher order methods, the probability of acceptance near the centers is also high, which may go a long way to explaining the gains in efficiency that these methods have been shown to have numerically.
 
-### Order Methods
-
-For a given initial state $\theta_k$ in model $k$ we can find an equivalent state $c_{k,k'}(\theta_k)$ in model $k'$. These equivalent states are referred to as "centering points." If we constrain $A((k,\theta_k), (k', c_{k,k'}(\theta_k)$ to be, say, 1, then moving from one model ($k$) to another ($k'$) will be encouraged and the state space will be more thoroughly explored.
-  
-The *order* of the method determines the type of constraint imposed. For the $0^{th}$-order, $A((k,\theta_k), (k', c_{k,k'}(\theta_k) = 1$, while for the higher-order methods, the first and higher-order derivatives are set equal to 0, as in $\nabla A((k,\theta_k), (k', c_{k,k'}(\theta_k) = \mathbf{0}$. For the first and higher order methods, the region probability of acceptance near the centers is also high, which may go a long way to explaining the gains in efficiency that these methods have been shown to have numerically.
-
-### Saturated State Space
-
-For a given state space $\mathcal{X}$, we can create additional "auxiliary" variables so that each model has the same number of parameters as the largest model. In this case, the random movement of the sampler converges to a mix of the auxiliary variables and the target distribution. The important feature here is the way that the auxiliary variables change the dimension of the models and the wide set of behaviors they are permitted. Cross-state proposals are essentially rendered deterministic and the underlying theory provides a framework for applications to times-series. Using this method, between state changes become more likely, and so the sampler covers the set of possible proposals more quickly.
-
-### Delayed Rejection
-
-Finally, there is a technique called delayed rejection. Essentially, if proposal $x'$ is rejected, a backup proposal $x''$ is immedeatly proposed, with an acceptance probability that takes into account the rejection of the first proposal to maintain the desired stationary distribution.  This literally increases the likelihood of acceptance and thus the overall efficiency of the sampler. This technique has interesting implications to the interplay between the first and second proposal, specifically selecting a distribution for which cross model proposals are generated frequently as the first proposal, with a proposal that assigns higher weight inside a model as the backup. This allows us to attempt to change state space frequently without being stuck on the same initial state for multiple iterations.
+**Saturated State Space** For a given state space $\mathcal{X}$, we can create additional "auxiliary" variables so that each model has the same number of parameters as the largest model. In this case, the random movement of the sampler converges to a mix of the auxiliary variables and the target distribution. The important feature here is the way that the auxiliary variables change the dimension of the models and the wide set of behaviors they are permitted. Cross-state proposals are essentially rendered deterministic and the underlying theory provides a framework for applications to times-series. Using this method, between state changes become more likely, and so the sampler covers the set of possible proposals more quickly.
 
 ## Finding Appropriate Diagnostics
 
-The goal of diagnositics in sampling is to provide a clear indicators that a sampling mechanism has satisfied some level convergence.
-For example, examining the autocorrelation between proposals can indicate how well mixed the sampler is.
-One of the most well known diagnostic is the Gelman Rubin Multiple Sequence diagnostic, 
-which has clear guidelines (the closer $\hat{R}$ is to 1 the better converged the sample - if $\hat{R} > 1.1$, draw more samples).
-However, the main issue in improving efficiency is in promoting transitions between models,
-namely transitions between state space dimensions. 
-When the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense.  
-*Transitioning* between models is not always the favored choice. Chains may "stabilize" quickly inside a model, so that chain will provide good diagnostics *until* the chain moves to sample from a different model. At that point, the diagnostics become much trickier. 
+The primary goal of diagnositics in sampling is to provide a clear indicators that a sampling mechanism has satisfied some level convergence. For example, examining the autocorrelation between proposals can indicate how well mixed the sampler is. One of the most well known diagnostic is the Gelman Rubin Multiple Sequence diagnostic, 
+which has clear guidelines (the closer $\hat{R}$ is to 1 the better converged the sample - if $\hat{R} > 1.1$, draw more samples). However, the main issue in improving efficiency is in promoting transitions between models,
+namely transitions between state space dimensions.When the dimension of the state space is large, it is difficult to imagine any single scalar-valued statistic that could work as a gatekeeper in a general sense. Transitioning between models is not always the favored choice. Chains may "stabilize" quickly inside a model, so that chain will provide good diagnostics until the chain moves to sample from a different model. At that point, the diagnostics become much trickier. 
 
-Recent work has been focused on accounting for the differences in "within" run and "between" run variability: finding ways account for how much disruption in chain behavior is natural when switching dimensions.  This idea is similar to "within" model and "between" model variability to account for expected departure from modeled behavior.  
+Recent work has been focused on accounting for the differences in "within" run and "between" run variability. That is, finding ways account for how much disruption in chain behavior is natural when switching dimensions. This idea is similar to "within" model and "between" model variability to account for expected departure from modeled behavior. 
 
 # Extensions
 
-There are a collection of methods that build off of the RJMCMC ideology by either extending the existing method with other sampling ideas or using the reversible jump within another popular methodology. In this section we briefly discuss three methods, 
+There are a collection of methods that build off of the RJMCMC ideology by either extending the existing method with other sampling ideas or using the reversible jump within another popular methodology. In this section we briefly discuss three methods - Adaptive RJMCMC [@hastie2005towards], Interacting Sequential MC [@jasra2008interacting], and Simulated Annealing extended for trans-dimensionsal problems [@andrieu2000reversible].
 
-  1. Adaptive RJMCMC [@hastie2005towards],
-  2. Interacting Sequential MC [@jasra2008interacting], and
-  3. Simulated Annealing extended for trans-dimensionsal problems [@andrieu2000reversible]
+The first extension to RJMCMC is to use adaptive sampling ideas within the sampler. This method aims to provide efficiency gains through improving the proposal distribution by using past observations, even rejected ones, to make mid-run adjustments to the proposal. For example, optimal location and scaling of the proposal can be determined during run, eliminating the need for tuning. There are two prominant types of adaptive sampling used currently. The first is *diminishing* adaptive sampling. In diminishing adaptive sampling, there is continuous adaptation, but at a decreasing rate. The second type is adaptive sampling *through regeneration*. In this method of adaptive sampling, if regions of the state space exist where incoming chains are likely to be independent of outgoing chains, adapt as chains enter and leave them. 
 
-The first extension to RJMCMC is to use adaptive sampling ideas within the sampler. This method aims to provide efficiency gains through improving the proposal distribution by using past observations, even rejected ones, to make mid-run adjustments to the proposal. For example, optimal location and scaling of the proposal can be determined during run, eliminating the need for tuning. There are two prominant types of adaptive sampling used currently. The first is *diminishing* adaptive sampling. In diminishing adaptive sampling, there is continuous adaptation, but at a decreasing rate.  The second type is adaptive sampling *through regeneration*.  In this method of adaptive sampling, if regions of the state space exist where incoming chains are likely to be independent of outgoing chains, adapt as chains enter and leave them. 
-
-The idea of using adaptive sampling in the RJMCMC is a very easy modification to the within model moves, since these moves are simple Metropolis-Hastings steps. However, once we consider the between model moves in an adaptive sampling architecture, this method is not as clear. Hastie [-@hastie2005towards] suggests adapting the probabilities for moving between models $j_m$ in cases where these do not depend on the number of parameters $k$ or the parameters themselves $\theta_k$ as one possibility.
+The idea of using adaptive sampling in the RJMCMC is a very easy modification to the within model moves, since these moves are often simple Metropolis-Hastings steps. However, once we consider the between model moves in an adaptive sampling architecture, this method is not as clear. Hastie [-@hastie2005towards] suggests adapting the probabilities for moving between models $j_m$ in cases where these do not depend on the number of parameters $k$ or the parameters themselves $\theta_k$ as one possibility.
 
 Interacting Sequential Monte Carlo (ISMC) samplers were first introduced by Jasra et al. [-@jasra2008interacting] as an extention to the sequential Monte Carlo. In this method, several sequential Monte Carlo samplers are run in parallel, but on completely separate subspaces of the full parameter space. For each sampler at time $t < T$, particles updated using MCMC moves. These MCMC moves can make use of a reversible jump if the problem is of a trans-dimensional nature for example. Then, at a predetermined time $t^* < T$, the separate samplers are combined into a single sampler moving across all models and allowed to interact in the full space. This method is intended to create more diverse samples from a sequential Monte Carlo framework.
 
 
-Simulated annealing [@geman1984stochastic] is a method for function optimization. This algorithm can be extended to a trans-dimensional case where an optimal model may need to be determined [@andrieu2000reversible]. In this case, let $f$ be the quantity we want to minimize, maybe with some penalization terms to mimic AIC or BIC. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate invariant dsn. Specifically, at phase $i$ with temperature $T_i$, the target distribution is the Boltzmann distribution with parameter $T_i$, $b_{T_i}(k, \theta_i) \propto \exp(-f(k, \theta_k)/T_i)$. Once equilibrium achieved in the chain, the temperature is decreased and a new phase is started from the state the chain ended in. This process of sampling a reversible Markov chain until reaching equilibrium with the target distribution and the reducing the temperature continues until $T_i = 0$. This process leaves a chain that approximates a distribution with all of its at the (penalized) minimum of the objective function.
+Simulated annealing [@geman1984stochastic] is a method for function optimization. This algorithm can be extended to a trans-dimensional case where an optimal model may need to be determined [@andrieu2000reversible]. In this case, let $f$ be the quantity we want to minimize, maybe with some penalization terms to mimic AIC or BIC. Trans-dimensional simulated annealing proceeds by using reversible jump moves to construct a Markov chain with appropriate invariant distribution. Specifically, at phase $i$ with temperature $T_i$, the target distribution is the Boltzmann distribution with parameter $T_i$, $b_{T_i}(k, \theta_i) \propto \exp(-f(k, \theta_k)/T_i)$. Once equilibrium achieved in the chain, the temperature is decreased and a new phase is started from the state the chain ended in. This process of sampling a reversible Markov chain until reaching equilibrium with the target distribution and the reducing the temperature continues until $T_i = 0$. This process produces a chain that approximates a distribution with all of its mass at the (penalized) minimum of the objective function.
 
 # Conclusion
 
-The Reversible jump Markov chain Monte Carlo method of simulation is an extremely powerful one that allows us to solve trans-dimensional problems that the usual frequentist or Bayesian statistical methodologies wouldn't.  Because the framework is so easily generalizable to many problems and applications, it is an extremely useful tool for the applied statistician.  One should, however, be wary of the difficulties of this methodology.  For instance, discovery of the proper determinstic functions, $h$, for transitions between each pair of models is an incredibly cumbersome problem when you have a large number of models to choose from. Even after finding the correct functions and proposals, there is the problem of inefficiency.  Although expected from a complicated methodology such as RJMCMC, the inefficiencies that arise when attempting to solve a problem through the use of RJMCMC can be a barrier that is very hard or nearly impossible to overcome.  We do not, however, wish to undersell the usefulness or impressiveness of the Reversible jump Markov chain Monte Carlo methodology.  It is the best method we have found for solving a diverse array of trans-dimensional problems.  
+Reversible jump Markov chain Monte Carlo simulation is a powerful and flexible framework that facilitates the solution of difficult trans-dimensional problems. Because the framework is so easily generalizable to many problems and applications, it is an extremely useful tool for the applied statistician. The main barrier to us remains the  specification of an effective proper transition function and proposal distribution. However, once determined the algorithm can be implemented with minimal increases in complexity to the Metropolis-Hastings algorithm and is not expensive computationally. For a broad set of challenging trans-dimensional problems the RJMCMC provides a theoretically sound option that is simple enough for an MCMC "layman" to implement.
 
 \appendix
 
+#Metropolis-Hastings step
+\label{app:MH}
+
 #Model development from section \ref{sec:themodel}
+\label{app:derive}
 
 $$ \pi(k, \theta_k | \mathbf{y}) \propto \left\{
-     \begin{array}{lr}
-       \frac{1}{2} p(\theta_1 | k = 1) L(\mathbf{y}|\theta_1) & : k = 1\\
-       \frac{1}{2} p(\theta_{2,1}, \theta_{2,2} | k = 2) L(\mathbf{y}|\theta_{2,1}, \theta_{2,2}) & : k = 2
-     \end{array}
-   \right. $$
-   
+   \begin{array}{lr}
+    \frac{1}{2} p(\theta_1 | k = 1) L(\mathbf{y}|\theta_1) & : k = 1\\
+    \frac{1}{2} p(\theta_{2,1}, \theta_{2,2} | k = 2) L(\mathbf{y}|\theta_{2,1}, \theta_{2,2}) & : k = 2
+   \end{array}
+  \right. $$
+  
  Development of the log posterior functions for the two models: 
  
 \underline{$k =1:$}
  \begin{align*}
  p((1,\theta_1) | \mathbf{y}) & \propto \pi(\theta_1|k=1) L(y|\theta_1) \\
-   & \propto \frac{\beta_\lambda^{\alpha_\lambda}}{\Gamma(\alpha_{\lambda})} \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \frac{\lambda^{y_i}}{y_i !} e^{-\lambda} \\
+  & \propto \frac{\beta_\lambda^{\alpha_\lambda}}{\Gamma(\alpha_{\lambda})} \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \frac{\lambda^{y_i}}{y_i !} e^{-\lambda} \\
  \ell(p((1,\theta_1) | \mathbf{y})) & \propto \log(p) + \log(c_\lambda) + (\alpha-1)\log(\lambda) - \beta_{\lambda} \lambda + \sum_{i=1}^n (y_i \log(\lambda) - \log(y_i!) -\lambda) 
 \end{align*}
 
 \underline{$k = 2:$}
 \begin{align*}
-p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}) & \propto p(\theta_{2,1}, \theta_{2,2} | k = 2) L(\mathbf{y}|\theta_{2,1}, \theta_{2,2})  \\
+p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}) & \propto p(\theta_{2,1}, \theta_{2,2} | k = 2) L(\mathbf{y}|\theta_{2,1}, \theta_{2,2}) \\
 	& \propto (1-p) \frac{\beta_\lambda^{\alpha_\lambda}}{\Gamma(\alpha_{\lambda})} \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \frac{\beta_\kappa^{\alpha_\kappa}}{\Gamma(\alpha_{\kappa})} \kappa^{\alpha_\kappa - 1} e^{-\beta_{\kappa} \kappa} \prod_{i=1}^n \frac{\lambda^{y_i}}{y_i !} \frac{\Gamma(1/\kappa + y_i)}{\Gamma(1/\kappa)(1/\kappa + \lambda)^{y_i}} (1+\kappa \lambda)^{-1/\kappa} \\
-\ell(p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}))	 & \propto \log(1-p) + \log(c_\lambda) + (\alpha-1)\log(\lambda) - \beta_{\lambda} \lambda + \log(c_\kappa) + (\alpha-1)\log(\kappa) - \beta_{\kappa} \kappa  \\
+\ell(p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}))	 & \propto \log(1-p) + \log(c_\lambda) + (\alpha-1)\log(\lambda) - \beta_{\lambda} \lambda + \log(c_\kappa) + (\alpha-1)\log(\kappa) - \beta_{\kappa} \kappa \\
 	& + \sum_{i=1}^n (y_i \log(\lambda) - \log(y_i!) + \log(\Gamma(1/\kappa + y_i)) - \log(\Gamma(1/\kappa)) - y_i\log(1/\kappa +\lambda) \\
 	& - 1/\kappa \log(1+\kappa\lambda)) 
  \end{align*}
-  
- Note that above, $c_a =  \frac{\beta_a^{\alpha_a}}{\Gamma(\alpha_{a})}$ for $a \in \{\lambda, \kappa \}$. Development of the full conditionals for the two models: 
+ 
+ Note that above, $c_a = \frac{\beta_a^{\alpha_a}}{\Gamma(\alpha_{a})}$ for $a \in \{\lambda, \kappa \}$. Development of the full conditionals for the two models: 
 
  \underline{$k =1:$}
  \begin{align*}
@@ -274,16 +253,18 @@ p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}) & \propto p(\theta_{2,1}, \theta_
  \begin{align*}
 \pi(\lambda| \dots) & \propto \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \lambda^{y_i} \Gamma(1/\kappa + y_i) (1/\kappa + \lambda)^{-y_i} (1+\kappa \lambda)^{-1/\kappa} \\ 
  & \propto \alpha^{\alpha + \sum y_i -1} e^{\lambda(-\beta_\lambda + n)} (1/\kappa + \lambda)^{-\sum y_i} (1+\kappa \lambda)^{-n/\kappa} \prod_{i=1}^n \Gamma(1/\kappa + y_i) \\
- &  \propto \alpha^{\alpha + \sum y_i -1} e^{\lambda(-\beta_\lambda + n)} (1/\kappa)^{-\sum y_i} (1+\kappa \lambda)^{-(\sum y_i + n/\kappa)} \prod_{i=1}^n \Gamma(1/\kappa + y_i)  \\
+ & \propto \alpha^{\alpha + \sum y_i -1} e^{\lambda(-\beta_\lambda + n)} (1/\kappa)^{-\sum y_i} (1+\kappa \lambda)^{-(\sum y_i + n/\kappa)} \prod_{i=1}^n \Gamma(1/\kappa + y_i) \\
 \end{align*}
-  which is not a known distribution.  In a similar fashion, 
-  
+ which is not a known distribution. In a similar fashion, 
+ 
 \begin{align*}
-\pi(\kappa | \dots)& \propto \kappa^{\alpha_\kappa - 1} e^{-\beta_{\kappa} \kappa}  \Gamma(1/\kappa)^(-n)(\kappa)^{\sum y_i} (1+\kappa \lambda)^{-(\sum y_i +n/\kappa)} \prod_{i=1}^n\Gamma(1/\kappa + y_i)\\
-\end{align*} 	  
-  which is also not a known distribution.
+\pi(\kappa | \dots)& \propto \kappa^{\alpha_\kappa - 1} e^{-\beta_{\kappa} \kappa} \Gamma(1/\kappa)^(-n)(\kappa)^{\sum y_i} (1+\kappa \lambda)^{-(\sum y_i +n/\kappa)} \prod_{i=1}^n\Gamma(1/\kappa + y_i)\\
+\end{align*} 	 
+ which is also not a known distribution.
 
 # Code
+\label{app:code}
+
 ```r
 `r paste(readLines('../coding/poisson_negbin.R'), collapse = '\n')`
 ```
