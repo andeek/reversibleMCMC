@@ -153,11 +153,6 @@ ak <- 2
 bk <- 10
 
 # Run MCMC
-ptm <- proc.time()
 test <- rjmcmc_sampler(soccer$TotalGoals, lambda0=2, kappa0=1, k0=1, mu=mu, 
                        sigma=sigma, alphal=alphal, betal=betal, alphak=alphak, 
                        betak=betak, al=al, bl=bl, ak=ak, bk=bk, mc.iter=50000)
-time <- proc.time() - ptm
-
-
-
