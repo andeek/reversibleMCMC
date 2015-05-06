@@ -20,7 +20,7 @@ output:
   template: tex/nips_template.tex
 bibliography: bibliography.bib
 abstract: |
- Reversible jump Markov chain Monte Carlo (RJMCMC) is a mechanism designed to solve trans-dimensional problems, where the number of parameters one wishes to estimate, in addition to the parameter values themselves, is also unknown. RJMCMC has applications in variable selection, Bayesian model selection, multiple change-point problems, and many more. In this paper, we provide an introduction to RJMCMC, demonstrate its functionality in an example, discuss the problems that arise most frequently in RJMCMC, and present some extensions of the theory and application of RJMCMC. 
+ Reversible jump Markov chain Monte Carlo (RJMCMC) is a method that generalizes the Metropolis-Hastings algorithm to appropriately handle trans-dimensional problems, where the number parameters to be estimated must also be estimated. RJMCMC has many applications, the most prominant being variable selection, model selection, and multiple change-point problems. In this paper, we provide an introduction to RJMCMC, demonstrate its functionality in a model selection example, discuss the problems that arise most frequently in RJMCMC, and present some extensions of the theory and application of RJMCMC. 
 ---
 
 ```{r knitr-opts, echo=FALSE}
