@@ -193,7 +193,7 @@ Reversible jump Markov chain Monte Carlo simulation is a powerful and flexible f
 $$ \pi(k, \theta_k | \mathbf{y}) \propto \left\{
    \begin{array}{lr}
     \frac{1}{2} p(\theta_1 | k = 1) L(\mathbf{y}|\theta_1) & : k = 1\\
-    \frac{1}{2} p(\theta_{2,1}, \theta_{2,2} | k = 2) L(\mathbf{y}|\theta_{2,1}, \theta_{2,2}) & : k = 2
+    \frac{1}{2} p(\theta_2 | k = 2) L(\mathbf{y}|\theta_2) & : k = 2
    \end{array}
   \right. $$
   
@@ -203,39 +203,39 @@ $$ \pi(k, \theta_k | \mathbf{y}) \propto \left\{
  \begin{align*}
  p((1,\theta_1) | \mathbf{y}) & \propto \pi(\theta_1|k=1) L(y|\theta_1) \\
   & \propto \frac{\beta_\lambda^{\alpha_\lambda}}{\Gamma(\alpha_{\lambda})} \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \frac{\lambda^{y_i}}{y_i !} e^{-\lambda} \\
- \ell(p((1,\theta_1) | \mathbf{y})) & \propto \log(p) + \log(c_\lambda) + (\alpha-1)\log(\lambda) - \beta_{\lambda} \lambda + \sum_{i=1}^n (y_i \log(\lambda) - \log(y_i!) -\lambda) 
+ \text{log}(p((1,\theta_1) | \mathbf{y})) & \propto \log(p) + \log(c_\lambda) + (\alpha-1)\log(\lambda) - \beta_{\lambda} \lambda + \sum_{i=1}^n (y_i \log(\lambda) - \log(y_i!) -\lambda) 
 \end{align*}
 
 \underline{$k = 2:$}
 \begin{align*}
-p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}) & \propto p(\theta_{2,1}, \theta_{2,2} | k = 2) L(\mathbf{y}|\theta_{2,1}, \theta_{2,2}) \\
+p((2,\theta_2) | \mathbf{y}) & \propto p(\theta_2 | k = 2) L(\mathbf{y}|\theta_2) \\
 	& \propto (1-p) \frac{\beta_\lambda^{\alpha_\lambda}}{\Gamma(\alpha_{\lambda})} \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \frac{\beta_\kappa^{\alpha_\kappa}}{\Gamma(\alpha_{\kappa})} \kappa^{\alpha_\kappa - 1} e^{-\beta_{\kappa} \kappa} \prod_{i=1}^n \frac{\lambda^{y_i}}{y_i !} \frac{\Gamma(1/\kappa + y_i)}{\Gamma(1/\kappa)(1/\kappa + \lambda)^{y_i}} (1+\kappa \lambda)^{-1/\kappa} \\
-\ell(p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}))	 & \propto \log(1-p) + \log(c_\lambda) + (\alpha-1)\log(\lambda) - \beta_{\lambda} \lambda + \log(c_\kappa) + (\alpha-1)\log(\kappa) - \beta_{\kappa} \kappa \\
+\text{log}(p((2,\theta_2) | \mathbf{y}))	 & \propto \log(1-p) + \log(c_\lambda) + (\alpha-1)\log(\lambda) - \beta_{\lambda} \lambda + \log(c_\kappa) + (\alpha-1)\log(\kappa) - \beta_{\kappa} \kappa \\
 	& + \sum_{i=1}^n (y_i \log(\lambda) - \log(y_i!) + \log(\Gamma(1/\kappa + y_i)) - y_i\log(1/\kappa +\lambda)) - n \log(\Gamma(1/\kappa)) \\
 	& - n/\kappa \log(1+\kappa\lambda)
  \end{align*}
  
  Note that above, $c_a = \frac{\beta_a^{\alpha_a}}{\Gamma(\alpha_{a})}$ for $a \in \{\lambda, \kappa \}$. 
  
- Development of the full conditionals for the two models used for within-model moves in Gibbs sampler: 
+ Development of the full conditionals for the two models used for within-model moves in the MCMC sampler: 
 
  \underline{$k =1:$}
  \begin{align*}
- \pi(1,\theta_1) | \dots) & \propto \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \lambda^{y_i} e^{-\lambda} \\
+ \pi(\lambda | k=1, \dots) & \propto \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \lambda^{y_i} e^{-\lambda} \\
  	& \propto \lambda^{\alpha + \sum y_i -1} e^{\lambda(-\beta_\lambda + n)} \\
-	\Rightarrow \quad \lambda | \dots, k = 1 & \sim \text{Gamma}(\alpha + \sum y_i, \beta_\lambda +n)
+	\Rightarrow \quad \lambda | k = 1, \dots & \sim \text{Gamma}(\alpha + \sum y_i, \beta_\lambda +n)
  \end{align*} 
  
  \underline{$k=2:$}
  \begin{align*}
-\pi(\lambda| \dots) & \propto \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \lambda^{y_i} \Gamma(1/\kappa + y_i) (1/\kappa + \lambda)^{-y_i} (1+\kappa \lambda)^{-1/\kappa} \\ 
+\pi(\lambda|k=2, \dots) & \propto \lambda^{\alpha_\lambda - 1} e^{-\beta_{\lambda} \lambda} \prod_{i=1}^n \lambda^{y_i} \Gamma(1/\kappa + y_i) (1/\kappa + \lambda)^{-y_i} (1+\kappa \lambda)^{-1/\kappa} \\ 
  & \propto \alpha^{\alpha + \sum y_i -1} e^{\lambda(-\beta_\lambda + n)} (1/\kappa + \lambda)^{-\sum y_i} (1+\kappa \lambda)^{-n/\kappa} \prod_{i=1}^n \Gamma(1/\kappa + y_i) \\
  & \propto \alpha^{\alpha + \sum y_i -1} e^{\lambda(-\beta_\lambda + n)} (1/\kappa)^{-\sum y_i} (1+\kappa \lambda)^{-(\sum y_i + n/\kappa)} \prod_{i=1}^n \Gamma(1/\kappa + y_i) \\
 \end{align*}
  which is not a known distribution (i.e. $f(\lambda|\dots) = c g(\lambda|\dots)$ ). In a similar fashion, 
  
 \begin{align*}
-\pi(\kappa | \dots)& \propto \kappa^{\alpha_\kappa - 1} e^{-\beta_{\kappa} \kappa} \Gamma(1/\kappa)^(-n)(\kappa)^{\sum y_i} (1+\kappa \lambda)^{-(\sum y_i +n/\kappa)} \prod_{i=1}^n\Gamma(1/\kappa + y_i)\\
+\pi(\kappa |k=2, \dots)& \propto \kappa^{\alpha_\kappa - 1} e^{-\beta_{\kappa} \kappa} \Gamma(1/\kappa)^(-n)(\kappa)^{\sum y_i} (1+\kappa \lambda)^{-(\sum y_i +n/\kappa)} \prod_{i=1}^n\Gamma(1/\kappa + y_i)\\
 \end{align*} 	 
  which is also not a known distribution (i.e. $f(\kappa|\dots) = c g(\kappa|\dots)$ )
 
@@ -243,16 +243,16 @@ p((2,\theta_{2,1}, \theta_{2,2}) | \mathbf{y}) & \propto p(\theta_{2,1}, \theta_
 \label{app:MH}
 Under Model $k=2$, sequential Metropolis-Hastings steps are necessary to draw $\theta_2 = (\lambda, \kappa)$ from the model. 
 
-Consider $\lambda_{(i)}, \kappa^{(i)}$ at the $i^{th}$ state of the chain. We'll use $\text{Gamma}(a_{\lambda}, b_{\lambda})$ and $\text{Gamma}(a_{\kappa}, b_{\kappa})$ as proposal distributions in the Metropolis Hastings steps. To avoid complications with computation of large factorials, we'll construct the M-H steps on the log scale.
+Consider $\lambda^{(i)}, \kappa^{(i)}$ at the $i^{th}$ state of the chain. We'll use $\text{Gamma}(a_{\lambda}, b_{\lambda})$ and $\text{Gamma}(a_{\kappa}, b_{\kappa})$ as independent proposal distributions in the Metropolis Hastings steps. To avoid complications with computation of large factorials, we'll construct the M-H steps on the log scale.
 
-1. Draw $\kappa^{(i+1)}$ using indpendence Metropolis Hastings
+1. Draw $\kappa^{(i+1)}$ using Metropolis Hastings
     a. Let $q(y|x)$ = $q(y)$ be  the Gamma($a_{\kappa}, b_{\kappa}$) density. Draw $\kappa^* \sim$ Gamma($a_{\kappa}, b_{\kappa}$).
     b. Compute $$r(\kappa^*, \kappa^{(i)}) = \text{log}(g(\kappa^*|\lambda^{(i)})) - \text{log}(g(\kappa^{(i)}|\lambda^{(i)})) + \text{log}(q(\kappa^{(i)})) - \text{log}(q(\kappa^*))$$
     c. Draw $U \sim \text{Unif}(0,1)$. Set $$\kappa^{(i+1)} = \begin{cases}
     \kappa^* & \text{if } \text{log}(u) < r(\kappa^*, \kappa^{(i)})\\
     \kappa^{(i)} & \text{ o.w. }\\
     \end{cases}$$
-2.  Draw $\lambda^{(i+1)}$ using indpendence Metropolis Hastings
+2.  Draw $\lambda^{(i+1)}$ using Metropolis Hastings
     a. Let $q(y|x)$ = $q(y)$ be  the Gamma($a_{\lambda}, b_{\lambda}$) density. Draw $\lambda^* \sim$ Gamma($a_{\lambda}, b_{\lambda}$).
     b. Compute $$r(\lambda^*, \lambda^{(i)}) = \text{log}(g(\lambda^*|\kappa^{(i+1)})) - \text{log}(g(\lambda^{(i)}|\kappa^{(i+1)})) + \text{log}(q(\lambda^{(i)})) - \text{log}(q(\lambda^*))$$
     c. Draw $U \sim \text{Unif}(0,1)$. Set $$\lambda^{(i+1)} = \begin{cases}
@@ -265,7 +265,7 @@ Consider $\lambda_{(i)}, \kappa^{(i)}$ at the $i^{th}$ state of the chain. We'll
 
 Let $m=\left\{(1,2), (2,1)\right\}$. Then the acceptance probability for a move of type $m$ is $\alpha_m(x,x') = \text{min}\left\{1, A_m(x, x') \right\}$ where
   $$
-  A_m(x,x') = \dfrac{\pi(x')j_m(x')g_m'(u')}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial(\theta_{k'}', u')}{\partial (\theta_k, u)}  \right\vert\\
+  A_m(x,x') = \dfrac{\pi(x')j_m(x')g_m'(u')}{\pi(x)j_m(x)g_m(u)}\left\vert \dfrac{\partial h'(\theta_{k'}', u')}{\partial (\theta_k, u)}  \right\vert\\
   $$
   
 $\pi(x)$ represents the joint posterior distribution evaluated at state of the chain $x$. $j_m(x)$ represents the probability that a move of type $m$ is attempted, and this probability can depend on the state of the chain. In the Poisson vs Negative Binomial example, there are only two possible moves, and conditional on the state of the chain we assume that the probability that a move type is attempted is $j_m(x) = 1$. That is, if the current state of the chain is under model 1, a move to model 2 will be attempted, and vice versa. 
@@ -275,7 +275,7 @@ $g$ is the $N(0,\sigma^2)$ density, and since no $u'$ is needed for the reverse 
 $$
   |J| = \left\vert
   \begin{array}{cc}
-    \dfrac{\partial \theta_1}{\partial \theta_1} & \dfrac{\partial \theta_1}{\partial \theta_1} \\
+    \dfrac{\partial \theta_1}{\partial \theta_1} & \dfrac{\partial \theta_1}{\partial u} \\
    \dfrac{\partial \mu e^u}{\partial \theta_1} & \dfrac{\partial \mu e^u}{\partial u}\\
   \end{array}\right\vert = \left\vert
   \begin{array}{cc}
@@ -285,7 +285,7 @@ $$
   $$
 Then
   $$
-  A_{(1,2)}(x,x') = \dfrac{\pi((2,\theta_2'|Y))}{\pi((1,\theta_1)|Y)g(u)}\left\vert \dfrac{\partial(\theta_{2}')}{\partial (\theta_1, u)}  \right\vert\\
+  A_{(1,2)}(x,x') = \dfrac{\pi((2,\theta_2'|Y))}{\pi((1,\theta_1)|Y)g(u)}\left\vert \dfrac{\partial h'(\theta_{2}')}{\partial (\theta_1, u)}  \right\vert\\
   = \dfrac{\pi((2,\theta_2'|Y))}{\pi((1,\theta_1)|Y)} \left\{\dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-u^2}{2\sigma^2} \right\rbrack \right\}^{-1} \mu e^u
   $$
   
@@ -298,14 +298,14 @@ $$
    \dfrac{\partial \text{log}(\theta_{2,2}/\mu)}{\partial \theta_{2,1}} & \dfrac{\partial \text{log}(\theta_{2,2}/\mu)}{\partial \theta_{2,2}}\\
   \end{array}\right\vert = \left\vert \begin{array}{cc}
     1 & 0\\
-   0 & (\mu/\theta_{2,2})\mu\\
+   0 & (\mu/\theta_{2,2})/\mu\\
   \end{array}\right\vert = 1/\theta_{2,2}
   $$
   
 Then
   
   $$
-  A_{(2,1)}(x,x') = \dfrac{\pi((1,\theta_1'|Y))g'(u)}{\pi((2,\theta_2)|Y)}\left\vert \dfrac{\partial(\theta_{1}', u')}{\partial (\theta_2)}  \right\vert\\
+  A_{(2,1)}(x,x') = \dfrac{\pi((1,\theta_1'|Y))g'(u)}{\pi((2,\theta_2)|Y)}\left\vert \dfrac{\partial h'(\theta_{1}', u')}{\partial (\theta_2)}  \right\vert\\
   = \dfrac{\pi((1,\theta_1'|Y))}{\pi((2,\theta_2)|Y)} \dfrac{1}{\sqrt{2\pi\sigma^2}} \text{exp} \left\lbrack \dfrac{-log(\theta_{2,2}/\mu)^2}{2\sigma^2} \right\rbrack \frac{1}{\theta_{2,2}}
   $$  
 
